@@ -44,10 +44,16 @@ import com.example.supplelab.ui.theme.TextSecondary
 import com.example.supplelab.ui.theme.TextWhite
 import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AuthScreen() {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val viewModel: SignInViewModel = koinViewModel()
+    val state by viewModel.state.collectAsState()
+    var loading by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     var isSuccess by remember { mutableStateOf(false) } // Add this line
 
@@ -72,11 +78,7 @@ fun AuthScreen() {
                 .padding(paddingValues)
                 .padding(24.dp)
         ) {
-            val context = LocalContext.current
-            val coroutineScope = rememberCoroutineScope()
-            val viewModel: SignInViewModel = viewModel()
-            val state by viewModel.state.collectAsState()
-            var loading by remember { mutableStateOf(false) }
+
 
             val launcher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.StartIntentSenderForResult()
