@@ -20,6 +20,7 @@ fun NavigationRoot(
     modifier: Modifier = Modifier,
 ){
     val backStack = rememberNavBackStack(AuthScreenKey)
+
     NavDisplay(
         modifier = modifier,
         backStack = backStack,

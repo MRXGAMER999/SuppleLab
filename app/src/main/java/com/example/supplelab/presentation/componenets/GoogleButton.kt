@@ -36,6 +36,8 @@ import com.example.supplelab.ui.theme.FontSize
 import com.example.supplelab.ui.theme.Gray
 import com.example.supplelab.ui.theme.GrayDarker
 import com.example.supplelab.ui.theme.IconSecondary
+import com.example.supplelab.ui.theme.SurfaceDarker
+import com.example.supplelab.ui.theme.SurfaceLighter
 import com.example.supplelab.ui.theme.TextPrimary
 
 @ExperimentalMaterial3ExpressiveApi
@@ -47,8 +49,8 @@ fun GoogleButton(
     secondaryText: String = "Please wait...",
     icon: Int = R.drawable.google_logo,
     shape: Shape = RoundedCornerShape(size = 99.dp),
-    backgroundColor: Color = Gray,
-    borderColor: Color = GrayDarker,
+    backgroundColor: Color = SurfaceLighter,
+    borderColor: Color = SurfaceDarker,
     progressIndicatorColor: Color = IconSecondary,
     onClick: () -> Unit
 ) {
