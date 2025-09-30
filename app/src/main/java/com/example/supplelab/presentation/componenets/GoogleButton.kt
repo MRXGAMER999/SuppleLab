@@ -83,7 +83,7 @@ fun GoogleButton(
         ) {
             AnimatedVisibility(
                 visible = !loading
-            ){
+            ) {
                 Icon(
                     painter = painterResource(icon),
                     contentDescription = "Google Logo",
