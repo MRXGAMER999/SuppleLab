@@ -1,4 +1,4 @@
-package com.example.supplelab.domain
+package com.example.supplelab.domain.model
 
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi

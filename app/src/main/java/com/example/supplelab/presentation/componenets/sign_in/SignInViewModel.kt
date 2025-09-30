@@ -1,6 +1,8 @@
 package com.example.supplelab.presentation.componenets.sign_in
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,5 +19,8 @@ class SignInViewModel: ViewModel() {
     }
     fun resetState(){
         _state.update { SignInState() } // Reset to initial state
+    }
+    fun getCurrentUser(): FirebaseUser? {
+        return FirebaseAuth.getInstance().currentUser
     }
 }

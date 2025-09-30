@@ -4,10 +4,8 @@ import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.supplelab.presentation.componenets.GoogleButton
 import com.example.supplelab.presentation.componenets.sign_in.GoogleAuthUiClient
 import com.example.supplelab.presentation.componenets.sign_in.SignInViewModel
@@ -51,8 +48,9 @@ import org.koin.androidx.compose.koinViewModel
 fun AuthScreen() {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val viewModel: SignInViewModel = koinViewModel()
-    val state by viewModel.state.collectAsState()
+    val authViewModel: AuthViewModel = koinViewModel()
+    val signInViewModel: SignInViewModel = koinViewModel()
+    val state by signInViewModel.state.collectAsState()
     var loading by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     var isSuccess by remember { mutableStateOf(false) } // Add this line
@@ -92,7 +90,7 @@ fun AuthScreen() {
                                 oneTapClient = Identity.getSignInClient(context)
                             )
                             val signInResult = client.signInWithIntent(data)
-                            viewModel.onSignInResult(signInResult)
+                            signInViewModel.onSignInResult(signInResult)
                             loading = false
                         }
                     } else {
@@ -105,13 +103,29 @@ fun AuthScreen() {
 
             LaunchedEffect(state.isSignInSuccessful, state.signInError) {
                 if (state.isSignInSuccessful) {
-                    isSuccess = true // Set to true for success
-                    snackbarHostState.showSnackbar("Sign-in successful")
-                    viewModel.resetState()
+                    val currentUser = signInViewModel.getCurrentUser()
+
+                    authViewModel.createCustomer(
+                        user = currentUser,
+                        onSuccess = {
+                            coroutineScope.launch {
+                                isSuccess = true
+                                snackbarHostState.showSnackbar("Sign-in successful")
+                                signInViewModel.resetState()
+                            }
+                        },
+                        onError = { error ->
+                            coroutineScope.launch {
+                                isSuccess = false
+                                snackbarHostState.showSnackbar("Error creating customer: $error")
+                                signInViewModel.resetState()
+                            }
+                        }
+                    )
                 } else if (state.signInError != null) {
-                    isSuccess = false // Set to false for error
+                    isSuccess = false
                     snackbarHostState.showSnackbar("Sign-in failed: ${state.signInError}")
-                    viewModel.resetState()
+                    signInViewModel.resetState()
                 }
             }
 
