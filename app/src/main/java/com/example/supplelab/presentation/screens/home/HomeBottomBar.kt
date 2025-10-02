@@ -54,7 +54,8 @@ fun HomeBottomBar(
         )
     )
     NavigationBar(
-        modifier = Modifier.background(SurfaceLighter)
+        modifier = Modifier,
+        containerColor = SurfaceLighter
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(

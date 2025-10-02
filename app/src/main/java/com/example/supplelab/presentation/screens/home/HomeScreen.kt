@@ -10,12 +10,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.supplelab.navigation.HomeTabsNavContent
+import com.example.supplelab.ui.theme.Surface
 
 
 @Composable
 fun HomeScreen() {
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     Scaffold(
+        containerColor = Surface,
+        topBar = {
+            HomeTopBar(selectedItemIndex)
+        },
         bottomBar = {
             HomeBottomBar(
                 selectedItemIndex = selectedItemIndex,
