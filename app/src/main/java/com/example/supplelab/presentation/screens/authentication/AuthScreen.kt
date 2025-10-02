@@ -45,7 +45,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AuthScreen() {
+fun AuthScreen(
+    onNavigateToHome:() -> Unit
+) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val authViewModel: AuthViewModel = koinViewModel()
@@ -112,6 +114,7 @@ fun AuthScreen() {
                                 isSuccess = true
                                 snackbarHostState.showSnackbar("Sign-in successful")
                                 signInViewModel.resetState()
+                                onNavigateToHome()
                             }
                         },
                         onError = { error ->
