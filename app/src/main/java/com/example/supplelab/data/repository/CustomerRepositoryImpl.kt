@@ -4,11 +4,16 @@ import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.domain.repository.CustomerRepository
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 
 
 class CustomerRepositoryImpl: CustomerRepository {
+    override fun getCurrentUserId(): String? {
+        return Firebase.auth.currentUser?.uid
+    }
+
     override suspend fun createCustomer(
         user: FirebaseUser?,
         onSuccess: () -> Unit,

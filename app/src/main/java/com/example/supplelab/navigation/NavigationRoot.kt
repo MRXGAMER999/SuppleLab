@@ -7,11 +7,15 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
+import com.example.supplelab.presentation.screens.home.HomeScreen
 import kotlinx.serialization.Serializable
 
 
 @Serializable
 object AuthScreenKey: NavKey
+
+@Serializable
+object HomeScreenKey: NavKey
 
 
 
@@ -31,6 +35,13 @@ fun NavigationRoot(
                         key = key,
                     ) {
                         AuthScreen()
+                    }
+                }
+                is HomeScreenKey -> {
+                    NavEntry(
+                        key = key,
+                    ) {
+                        HomeScreen()
                     }
                 }
                 else -> error("Unknown NavKey: $key")
