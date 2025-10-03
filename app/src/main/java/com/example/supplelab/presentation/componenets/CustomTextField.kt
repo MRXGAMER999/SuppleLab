@@ -1,4 +1,4 @@
-package com.example.supplelab.presentation.componenets.prof
+package com.example.supplelab.presentation.componenets
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border
@@ -63,16 +63,14 @@ fun CustomTextField(
         shape = RoundedCornerShape(size = 6.dp),
         keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.colors(
+            unfocusedContainerColor = SurfaceLighter,
+            focusedContainerColor = SurfaceLighter,
             focusedTextColor = TextPrimary,
             unfocusedTextColor = TextPrimary,
             disabledTextColor = TextPrimary.copy(alpha = ALPHA_DISABLED),
-            focusedContainerColor = SurfaceLighter,
-            unfocusedContainerColor = SurfaceLighter,
-            disabledContainerColor = SurfaceLighter,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-            errorIndicatorColor = Color.Transparent,
+            focusedPlaceholderColor = TextPrimary. copy(alpha = ALPHA_HALF),
+            unfocusedPlaceholderColor = TextPrimary. copy(alpha = ALPHA_HALF),
+            disabledPlaceholderColor = TextPrimary. copy(alpha = ALPHA_DISABLED)
         )
     )
 }

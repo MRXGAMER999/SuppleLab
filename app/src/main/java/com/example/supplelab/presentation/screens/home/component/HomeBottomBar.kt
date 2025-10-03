@@ -1,6 +1,5 @@
-package com.example.supplelab.presentation.screens.home
+package com.example.supplelab.presentation.screens.home.component
 
-import androidx.compose.foundation.background
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
