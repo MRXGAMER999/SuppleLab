@@ -31,8 +31,7 @@ fun CustomDrawer(
         modifier = Modifier
             .fillMaxHeight()
             .fillMaxWidth(0.6f)
-            .padding(horizontal = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 12.dp)
     ) {
         Spacer(modifier = Modifier.height(50.dp))
         Text(
