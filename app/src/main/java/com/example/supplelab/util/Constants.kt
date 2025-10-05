@@ -6,4 +6,6 @@ object Constants {
     const val ALPHA_DISABLED = 0.38F
     const val AlPHA_TEN_PERSENT = 0.1F
     const val ALPHA_ZERO = 0f
+
+
 }

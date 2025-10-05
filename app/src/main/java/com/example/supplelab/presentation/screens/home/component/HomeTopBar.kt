@@ -18,7 +18,11 @@ import com.example.supplelab.ui.theme.TextPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeTopBar(selectedIndex: Int){
+fun HomeTopBar(
+    selectedIndex: Int,
+    onNavigationIconClicked: () -> Unit,
+    isDrawerOpened: Boolean
+) {
     val titles = listOf("HOME", "CARD", "CATEGORIES")
     CenterAlignedTopAppBar(
         title = {
@@ -34,9 +38,13 @@ fun HomeTopBar(selectedIndex: Int){
             }
         },
         navigationIcon = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                onNavigationIconClicked()
+            }) {
                 Icon(
-                    painter = painterResource(R.drawable.menu),
+                    painter = painterResource(
+                        if (isDrawerOpened) R.drawable.close else R.drawable.menu
+                    ),
                     contentDescription = "Menu Icon",
                     tint = IconPrimary
                 )
