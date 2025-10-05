@@ -15,7 +15,7 @@ enum class DrawerItem(
         icon = R.drawable.book
     ),
     Locations(
-        title = "Logcatio",
+        title = "Locations",
         icon = R.drawable.map_pin
     ),
     ContactUs(

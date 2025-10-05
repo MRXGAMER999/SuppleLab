@@ -1,5 +1,6 @@
 package com.example.supplelab.presentation.screens.home
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -22,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
@@ -48,6 +48,9 @@ fun HomeScreen() {
     val animateOffset by animateDpAsState(
         targetValue = if(drawerState.isOpened()) offsetValue else 0.dp
     )
+    val animatedBackground by animateColorAsState(
+        targetValue = if (drawerState.isOpened()) SurfaceLighter else Surface
+    )
     val animatedScale by animateFloatAsState(
         targetValue = if (drawerState.isOpened()) 0.9f else 1f
     )
@@ -61,7 +64,7 @@ fun HomeScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(SurfaceLighter)
+            .background(animatedBackground)
             .systemBarsPadding()
     ) {
         CustomDrawer(
@@ -78,7 +81,7 @@ fun HomeScreen() {
                 .offset(x = animateOffset)
                 .scale(animatedScale)
                 .shadow(
-                    elevation = 20.dp,
+                    elevation = 15.dp,
                     shape = RoundedCornerShape(size = animatedRadius)
                 )
         ) {
@@ -107,6 +110,4 @@ fun HomeScreen() {
         }
 
     }
-
-
 }
