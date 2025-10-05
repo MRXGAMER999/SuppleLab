@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ import com.example.supplelab.ui.theme.Surface
 import com.example.supplelab.ui.theme.SurfaceLighter
 import com.example.supplelab.presentation.profile.isOpened
 import com.example.supplelab.presentation.profile.opposite
+import com.example.supplelab.util.Constants.ALPHA_DISABLED
 
 
 @Composable
@@ -81,8 +83,10 @@ fun HomeScreen() {
                 .offset(x = animateOffset)
                 .scale(animatedScale)
                 .shadow(
-                    elevation = 15.dp,
-                    shape = RoundedCornerShape(size = animatedRadius)
+                    elevation = 20.dp,
+                    shape = RoundedCornerShape(size = animatedRadius),
+                    ambientColor = Color.Black.copy(alpha = ALPHA_DISABLED),
+                    spotColor = Color.Black.copy(alpha = ALPHA_DISABLED)
                 )
         ) {
             Scaffold(
@@ -108,6 +112,5 @@ fun HomeScreen() {
                 }
             }
         }
-
     }
 }
