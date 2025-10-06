@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialTheme // Added import
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -34,6 +34,7 @@ import com.example.supplelab.presentation.componenets.sign_in.GoogleAuthUiClient
 import com.example.supplelab.presentation.componenets.sign_in.SignInViewModel
 import com.example.supplelab.ui.theme.BebasNeueFont
 import com.example.supplelab.ui.theme.FontSize
+import com.example.supplelab.ui.theme.Surface
 import com.example.supplelab.ui.theme.SurfaceBrand
 import com.example.supplelab.ui.theme.SurfaceError
 import com.example.supplelab.ui.theme.TextPrimary
@@ -58,7 +59,7 @@ fun AuthScreen(
     var isSuccess by remember { mutableStateOf(false) } // Add this line
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Surface,
         topBar = {
             SnackbarHost(
                 hostState = snackbarHostState,
@@ -112,8 +113,13 @@ fun AuthScreen(
                         onSuccess = {
                             coroutineScope.launch {
                                 isSuccess = true
-                                snackbarHostState.showSnackbar("Sign-in successful")
-                                signInViewModel.resetState()
+                                snackbarHostState.showSnackbar(
+                                    "Sign-in successful",
+                                    duration = SnackbarDuration.Short)
+                            }
+                            signInViewModel.resetState()
+                            coroutineScope.launch {
+                                kotlinx.coroutines.delay(800)
                                 onNavigateToHome()
                             }
                         },

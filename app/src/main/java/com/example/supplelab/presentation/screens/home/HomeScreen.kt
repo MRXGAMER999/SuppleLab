@@ -12,11 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -29,18 +33,27 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.navigation.HomeTabsNavContent
 import com.example.supplelab.presentation.profile.CustomDrawerState
+import com.example.supplelab.presentation.profile.isOpened
+import com.example.supplelab.presentation.profile.opposite
+import com.example.supplelab.presentation.screens.authentication.AuthViewModel
 import com.example.supplelab.presentation.screens.home.component.CustomDrawer
 import com.example.supplelab.presentation.screens.home.component.HomeBottomBar
 import com.example.supplelab.presentation.screens.home.component.HomeTopBar
 import com.example.supplelab.ui.theme.Surface
+import com.example.supplelab.ui.theme.SurfaceBrand
+import com.example.supplelab.ui.theme.SurfaceError
 import com.example.supplelab.ui.theme.SurfaceLighter
-import com.example.supplelab.presentation.profile.isOpened
-import com.example.supplelab.presentation.profile.opposite
+import com.example.supplelab.ui.theme.TextPrimary
+import com.example.supplelab.ui.theme.TextWhite
 import com.example.supplelab.util.Constants.ALPHA_DISABLED
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onSignOut: () -> Unit
+) {
     val windowInfo = LocalWindowInfo.current
     val screenWidth = with(LocalDensity.current) {
         windowInfo.containerSize.width.toDp()
@@ -59,9 +72,11 @@ fun HomeScreen() {
     val animatedRadius by animateDpAsState(
         targetValue = if (drawerState.isOpened()) 20.dp else 0.dp
     )
-
-
+    val viewModel: AuthViewModel = koinViewModel()
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    var isSuccess by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -72,7 +87,27 @@ fun HomeScreen() {
         CustomDrawer(
             onProfileClick = { },
             onContactUsClick = { },
-            onSignOutClick = { },
+            onSignOutClick = {
+                drawerState = CustomDrawerState.Closed
+                viewModel.signOut(
+                    onSuccess = {
+                        coroutineScope.launch {
+                            isSuccess = true
+                            snackbarHostState.showSnackbar("Sign-out successful")
+                        }
+                        coroutineScope.launch {
+                            kotlinx.coroutines.delay(800)
+                            onSignOut()
+                        }
+                    },
+                    onError = { message ->
+                        coroutineScope.launch {
+                            isSuccess = false
+                            snackbarHostState.showSnackbar("Sign-out failed: $message")
+                        }
+                    }
+                )
+            },
             onAdminPanelClick = { }
         )
 
@@ -103,6 +138,18 @@ fun HomeScreen() {
                         selectedItemIndex = selectedItemIndex,
                         onSelectedItemIndexChange = { selectedItemIndex = it }
                     )
+                },
+                snackbarHost = {
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        modifier = Modifier.padding(24.dp)
+                    ) { data ->
+                        Snackbar(
+                            snackbarData = data,
+                            containerColor = if (isSuccess) SurfaceBrand else SurfaceError,
+                            contentColor = if (isSuccess) TextPrimary else TextWhite
+                        )
+                    }
                 }
             ) { paddingValues ->
                 Column(

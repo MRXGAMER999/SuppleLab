@@ -58,7 +58,12 @@ fun NavigationRoot(
                     NavEntry(
                         key = key,
                     ) {
-                        HomeScreen()
+                        HomeScreen(
+                            onSignOut = {
+                                backStack.remove(key)
+                                backStack.add(AuthScreenKey)
+                            }
+                        )
                     }
                 }
                 else -> error("Unknown NavKey: $key")

@@ -1,5 +1,6 @@
 package com.example.supplelab.domain.repository
 
+import com.example.supplelab.util.RequestState
 import com.google.firebase.auth.FirebaseUser
 
 interface CustomerRepository {
@@ -9,4 +10,5 @@ interface CustomerRepository {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     )
+    suspend fun signOut(): RequestState<Unit>
 }

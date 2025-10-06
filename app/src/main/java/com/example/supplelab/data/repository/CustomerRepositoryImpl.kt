@@ -2,6 +2,7 @@ package com.example.supplelab.data.repository
 
 import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.domain.repository.CustomerRepository
+import com.example.supplelab.util.RequestState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
@@ -42,6 +43,15 @@ class CustomerRepositoryImpl: CustomerRepository {
 
         } catch (e: Exception) {
             onError(e.message ?: "Error while creating customer")
+        }
+    }
+
+    override suspend fun signOut(): RequestState<Unit> {
+        return try {
+            Firebase.auth.signOut()
+            RequestState.Success(Unit)
+        } catch (e: Exception) {
+             RequestState.Error(e.message ?: "Error signing out")
         }
     }
 }
