@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.example.supplelab.presentation.profile.ProfileScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
 import com.google.firebase.auth.FirebaseAuth
@@ -19,6 +20,9 @@ object AuthScreenKey: NavKey
 
 @Serializable
 object HomeScreenKey: NavKey
+
+@Serializable
+object ProfileScreenKey: NavKey
 
 
 
@@ -62,8 +66,18 @@ fun NavigationRoot(
                             onSignOut = {
                                 backStack.remove(key)
                                 backStack.add(AuthScreenKey)
+                            },
+                            onProfileClick = {
+                                backStack.add(ProfileScreenKey)
                             }
                         )
+                    }
+                }
+                is ProfileScreenKey -> {
+                    NavEntry(
+                        key = key,
+                    ) {
+                        ProfileScreen()
                     }
                 }
                 else -> error("Unknown NavKey: $key")

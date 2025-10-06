@@ -52,7 +52,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
     val screenWidth = with(LocalDensity.current) {
@@ -85,7 +86,9 @@ fun HomeScreen(
             .systemBarsPadding()
     ) {
         CustomDrawer(
-            onProfileClick = { },
+            onProfileClick = {
+                onProfileClick()
+            },
             onContactUsClick = { },
             onSignOutClick = {
                 drawerState = CustomDrawerState.Closed

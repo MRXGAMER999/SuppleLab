@@ -1,7 +1,9 @@
 package com.example.supplelab.presentation.componenets
 
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,12 +25,14 @@ import com.example.supplelab.util.Constants.ALPHA_DISABLED
 
 @Composable
 fun PrimaryButton(
+    modifier: Modifier = Modifier,
     text: String,
     icon: Int? = null,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     Button(
+        modifier = modifier.fillMaxWidth(),
         onClick = onClick,
         enabled = enabled,
         shape = RoundedCornerShape(size = 6.dp),
@@ -37,7 +41,8 @@ fun PrimaryButton(
             contentColor = TextPrimary,
             disabledContainerColor = ButtonDisabled,
             disabledContentColor = TextPrimary.copy(ALPHA_DISABLED)
-        )
+        ),
+        contentPadding = PaddingValues(20.dp)
     ) {
         if(icon != null){
             Icon(
