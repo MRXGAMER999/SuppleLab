@@ -77,7 +77,11 @@ fun NavigationRoot(
                     NavEntry(
                         key = key,
                     ) {
-                        ProfileScreen()
+                        ProfileScreen(
+                            onNavigationIconClicked = {
+                                backStack.remove(key)
+                            }
+                        )
                     }
                 }
                 else -> error("Unknown NavKey: $key")

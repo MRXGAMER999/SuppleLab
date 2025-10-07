@@ -1,7 +1,9 @@
 package com.example.supplelab.domain.repository
 
+import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.util.RequestState
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.flow.Flow
 
 interface CustomerRepository {
     fun getCurrentUserId(): String?
@@ -10,5 +12,6 @@ interface CustomerRepository {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     )
+    fun readCustomerFlow(): Flow<RequestState<Customer>>
     suspend fun signOut(): RequestState<Unit>
 }

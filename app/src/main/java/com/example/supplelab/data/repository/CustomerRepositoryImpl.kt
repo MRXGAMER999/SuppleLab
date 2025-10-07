@@ -7,6 +7,8 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.tasks.await
 
 
@@ -44,6 +46,10 @@ class CustomerRepositoryImpl: CustomerRepository {
         } catch (e: Exception) {
             onError(e.message ?: "Error while creating customer")
         }
+    }
+
+    override fun readCustomerFlow(): Flow<RequestState<Customer>> = channelFlow {
+        TODO("Not yet implemented")
     }
 
     override suspend fun signOut(): RequestState<Unit> {

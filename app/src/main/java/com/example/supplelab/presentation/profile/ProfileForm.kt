@@ -63,10 +63,6 @@ fun ProfileForm(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(
-                horizontal = 24.dp,
-                vertical = 12.dp
-            )
             .verticalScroll(rememberScrollState())
             .imePadding(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
