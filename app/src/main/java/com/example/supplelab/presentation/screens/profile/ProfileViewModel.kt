@@ -9,6 +9,7 @@ import com.example.supplelab.domain.model.Country
 import com.example.supplelab.domain.model.PhoneNumber
 import com.example.supplelab.domain.repository.CustomerRepository
 import com.example.supplelab.util.RequestState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
@@ -35,16 +36,17 @@ class ProfileViewModel(
             initialValue = RequestState.Loading
         )
 
-    var screenState: RequestState<ProfileScreenState> by mutableStateOf(RequestState.Loading)
+    var screenReady: RequestState<Unit> by mutableStateOf(RequestState.Loading)
+    var screenState: ProfileScreenState by mutableStateOf(ProfileScreenState())
         private set
+
 
     init {
         viewModelScope.launch {
             customer.collectLatest { data ->
                 if (data.isSuccess()){
                     val fetchedCustomer = data.getSuccessData()
-                    screenState = RequestState.Success(
-                        ProfileScreenState(
+                    screenState = ProfileScreenState(
                             firstName = fetchedCustomer.firstName,
                             lastName = fetchedCustomer.lastName,
                             email = fetchedCustomer.email,
@@ -55,11 +57,36 @@ class ProfileViewModel(
                             country = Country.entries.firstOrNull{it.dialCode == fetchedCustomer.phoneNumber?.dialCode}
                                 ?: Country.Egypt
                         )
-                    )
+                    screenReady = RequestState.Success(Unit)
                 } else if (data.isError()){
-                    screenState = RequestState.Error(data.getErrorMessage())
+                    screenReady = RequestState.Error(data.getErrorMessage())
                 }
             }
         }
+    }
+    fun updateFirstName(value: String){
+        screenState = (screenState.copy(firstName = value))
+    }
+    fun updateLastName(value: String){
+        screenState = (screenState.copy(lastName = value))
+    }
+    fun updateCity(value: String){
+        screenState = (screenState.copy(city = value))
+    }
+    fun updatePostalCode(value: Int?){
+        screenState = (screenState.copy(postalCode = value))
+    }
+    fun updateAddress(value: String){
+        screenState = (screenState.copy(address = value))
+    }
+    fun updateCountry(value: Country){
+        screenState = (screenState.copy(country = value))
+    }
+    fun updatePhoneNumber(value: String?){
+        screenState = screenState.copy(phoneNumber = PhoneNumber(
+                dialCode = screenState.country.dialCode,
+                number = value!!
+            )
+        )
     }
 }

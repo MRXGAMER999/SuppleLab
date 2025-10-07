@@ -27,6 +27,7 @@ import com.example.supplelab.R
 import com.example.supplelab.domain.model.Country
 import com.example.supplelab.presentation.componenets.ErrorCard
 import com.example.supplelab.presentation.componenets.PrimaryButton
+import com.example.supplelab.presentation.profile.LoadCard
 import com.example.supplelab.presentation.profile.ProfileForm
 import com.example.supplelab.ui.theme.BebasNeueFont
 import com.example.supplelab.ui.theme.FontSize
@@ -43,6 +44,7 @@ fun ProfileScreen(
 ){
     val viewModel: ProfileViewModel = koinViewModel()
     val screenState = viewModel.screenState
+    val screenReady = viewModel.screenReady
 
     Scaffold(
         containerColor = Surface,
@@ -85,8 +87,10 @@ fun ProfileScreen(
                     top = 12.dp,
                     bottom = 24.dp)
         ) {
-            screenState.DisplayResult(
-                onLoading = {},
+            screenReady.DisplayResult(
+                onLoading = {
+                    LoadCard(modifier = Modifier.fillMaxSize())
+                },
                 onSuccess = { state ->
                     Column(
                         modifier = Modifier.fillMaxSize()
@@ -94,23 +98,21 @@ fun ProfileScreen(
 
                         ProfileForm(
                             modifier = Modifier.weight(1f),
-                            country = state.country,
-                            onCountrySelect = { selectedCountry ->
-
-                            },
-                            firstName = state.firstName,
-                            onFirstNameChange = {},
-                            lastName = state.lastName,
-                            onLastNameChange = {},
-                            email = state.email,
-                            city = state.city,
-                            onCityChange = {},
-                            postalCode = state.postalCode,
-                            onPostalCodeChange = {},
-                            address = state.address,
-                            onAddressChange = {},
-                            phoneNumber = state.phoneNumber?.number,
-                            onPhoneNumberChange = {},
+                            country = screenState.country,
+                            onCountrySelect = viewModel::updateCountry,
+                            firstName = screenState.firstName,
+                            onFirstNameChange = viewModel::updateFirstName,
+                            lastName = screenState.lastName,
+                            onLastNameChange = viewModel::updateLastName,
+                            email = screenState.email,
+                            city = screenState.city,
+                            onCityChange = viewModel::updateCity,
+                            postalCode = screenState.postalCode,
+                            onPostalCodeChange = viewModel::updatePostalCode,
+                            address = screenState.address,
+                            onAddressChange = viewModel::updateAddress,
+                            phoneNumber = screenState.phoneNumber?.number,
+                            onPhoneNumberChange = viewModel::updatePhoneNumber,
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         PrimaryButton(
