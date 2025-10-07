@@ -1,5 +1,6 @@
 package com.example.supplelab.presentation.componenets
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,8 +47,8 @@ fun AlertTextField(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if(icon != null){
-            Icon(
-                modifier = Modifier.size(14.dp),
+            Image(
+                modifier = Modifier.size(16.dp),
                 painter = painterResource(icon),
                 contentDescription = "Text field icon"
             )

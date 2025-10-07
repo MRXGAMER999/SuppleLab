@@ -8,9 +8,9 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.example.supplelab.presentation.profile.ProfileScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
+import com.example.supplelab.presentation.screens.profile.ProfileScreen
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.serialization.Serializable
 
