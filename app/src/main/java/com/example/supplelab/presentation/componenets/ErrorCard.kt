@@ -6,12 +6,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.TextUnit
 import com.example.supplelab.ui.theme.FontSize
 
 @Composable
 fun ErrorCard(
     modifier: Modifier = Modifier,
-    message: String
+    message: String,
+    fontSize: TextUnit = FontSize.SMALL
 ) {
     Box(
         modifier = modifier,
@@ -22,7 +24,7 @@ fun ErrorCard(
                 .fillMaxWidth()
                 .align(Alignment.Center),
             text = message,
-            fontSize = FontSize.SMALL
+            fontSize = fontSize
         )
     }
 }

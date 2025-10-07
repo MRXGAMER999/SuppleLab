@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -24,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.R
 import com.example.supplelab.domain.model.Country
+import com.example.supplelab.presentation.componenets.ErrorCard
 import com.example.supplelab.presentation.componenets.PrimaryButton
 import com.example.supplelab.presentation.profile.ProfileForm
 import com.example.supplelab.ui.theme.BebasNeueFont
@@ -31,13 +33,17 @@ import com.example.supplelab.ui.theme.FontSize
 import com.example.supplelab.ui.theme.IconPrimary
 import com.example.supplelab.ui.theme.Surface
 import com.example.supplelab.ui.theme.TextPrimary
+import com.example.supplelab.util.DisplayResult
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onNavigationIconClicked: () -> Unit,
 ){
-    var country by remember { mutableStateOf(Country.Egypt) }
+    val viewModel: ProfileViewModel = koinViewModel()
+    val screenState = viewModel.screenState
+
     Scaffold(
         containerColor = Surface,
         topBar = {
@@ -79,32 +85,50 @@ fun ProfileScreen(
                     top = 12.dp,
                     bottom = 24.dp)
         ) {
-            ProfileForm(
-                modifier = Modifier.weight(1f),
-                country = country,
-                onCountrySelect = {
-                    country = it
+            screenState.DisplayResult(
+                onLoading = {},
+                onSuccess = { state ->
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+
+                        ProfileForm(
+                            modifier = Modifier.weight(1f),
+                            country = state.country,
+                            onCountrySelect = { selectedCountry ->
+
+                            },
+                            firstName = state.firstName,
+                            onFirstNameChange = {},
+                            lastName = state.lastName,
+                            onLastNameChange = {},
+                            email = state.email,
+                            city = state.city,
+                            onCityChange = {},
+                            postalCode = state.postalCode,
+                            onPostalCodeChange = {},
+                            address = state.address,
+                            onAddressChange = {},
+                            phoneNumber = state.phoneNumber?.number,
+                            onPhoneNumberChange = {},
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        PrimaryButton(
+                            text = "Update",
+                            icon = R.drawable.check,
+                            onClick = {}
+                        )
+                    }
                 },
-                firstName = "",
-                onFirstNameChange = {},
-                lastName = "",
-                onLastNameChange = {},
-                email = "",
-                city = "",
-                onCityChange = {},
-                postalCode = null,
-                onPostalCodeChange = {},
-                address = "",
-                onAddressChange = {},
-                phoneNumber = null,
-                onPhoneNumberChange = {},
+                onError = {message ->
+                    ErrorCard(
+                        modifier = Modifier.fillMaxSize(),
+                        message = message,
+                        fontSize = FontSize.REGULAR
+                    )
+                }
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            PrimaryButton(
-                text = "Update",
-                icon = R.drawable.check,
-                onClick = {}
-            )
+
         }
     }
 

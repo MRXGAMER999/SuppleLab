@@ -4,10 +4,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Customer(
-    val id: String,
-    val firstName: String,
-    val lastName: String,
-    val email: String,
+    val id: String = "",
+    val firstName: String = "",
+    val lastName: String = "",
+    val email: String = "",
     val city: String? = null,
     val postalCode: Int? = null,
     val address: String? = null,
@@ -16,6 +16,6 @@ data class Customer(
 )
 @Serializable
 data class PhoneNumber(
-    val dialCode: Int,
-    val number: String
+    val dialCode: Int = 0,
+    val number: String = ""
 )

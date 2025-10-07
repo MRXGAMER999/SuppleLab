@@ -7,8 +7,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.tasks.await
 
 
@@ -49,8 +51,33 @@ class CustomerRepositoryImpl: CustomerRepository {
     }
 
     override fun readCustomerFlow(): Flow<RequestState<Customer>> = channelFlow {
-        TODO("Not yet implemented")
+        try {
+            val userId = getCurrentUserId()
+            if (userId != null) {
+                val database = Firebase.firestore
+                database.collection("customers")
+                    .document(userId)
+                    .snapshots()
+                    .collectLatest { documentSnapshot ->
+                        if (documentSnapshot.exists()) {
+                            val customer = documentSnapshot.toObject(Customer::class.java)
+                            if (customer != null) {
+                                send(RequestState.Success(customer))
+                            } else {
+                                send(RequestState.Error("Error parsing customer data"))
+                            }
+                        } else {
+                            send(RequestState.Error("Customer data does not exist"))
+                        }
+                    }
+            } else {
+                send(RequestState.Error("User is not available"))
+            }
+        } catch (e: Exception) {
+            send(RequestState.Error("Error fetching customer data: ${e.message}"))
+        }
     }
+
 
     override suspend fun signOut(): RequestState<Unit> {
         return try {
