@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.domain.model.Country
 import com.example.supplelab.presentation.componenets.AlertTextField
@@ -97,7 +99,10 @@ fun ProfileForm(
                 onPostalCodeChange(it.toIntOrNull())
             },
             placeholder = "Postal Code",
-            error = postalCode.toString().length !in 3..10,
+            error = postalCode == null ||postalCode.toString().length !in 3..10,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number
+            )
         )
         CustomTextField(
             value = address ?: "",
@@ -119,10 +124,13 @@ fun ProfileForm(
             CustomTextField(
                 value = phoneNumber ?: "",
                 onValueChange = {
-                    onPhoneNumberChange
+                    onPhoneNumberChange(it)
                 },
                 placeholder = "Phone Number",
                 error = phoneNumber?.length !in 5..15 && phoneNumber != null,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
             )
         }
     }
