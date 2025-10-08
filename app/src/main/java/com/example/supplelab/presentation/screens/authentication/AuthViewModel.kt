@@ -14,7 +14,7 @@ class AuthViewModel(
 ): ViewModel() {
     fun createCustomer(
         user: FirebaseUser?,
-        onSuccess: () -> Unit,
+        onSuccess: (isNewUser: Boolean) -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {

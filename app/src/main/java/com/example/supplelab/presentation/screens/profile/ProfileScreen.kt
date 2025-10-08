@@ -44,6 +44,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun ProfileScreen(
     onNavigationIconClicked: () -> Unit,
+    onNavigateToHome: (() -> Unit)? = null
 ){
     val viewModel: ProfileViewModel = koinViewModel()
     val screenState = viewModel.screenState
@@ -53,6 +54,9 @@ fun ProfileScreen(
     var notificationMessage by remember { mutableStateOf("") }
     var isSuccess by remember { mutableStateOf(false) }
     val isFormValid = viewModel.isFormValid
+    
+    // Track if this is the first time completing the profile
+    val isFirstTimeCompletion = !screenState.profileComplete
 
     LaunchedEffect(showNotification) {
         if (showNotification) {
@@ -142,6 +146,12 @@ fun ProfileScreen(
                                                 isSuccess = true
                                                 notificationMessage = "Profile updated successfully!"
                                                 showNotification = true
+                                                
+                                                // If this is the first time completing the profile, navigate to home
+                                                if (isFirstTimeCompletion && onNavigateToHome != null) {
+                                                    delay(1000) // Give time for notification to show
+                                                    onNavigateToHome()
+                                                }
                                             }
                                         },
                                         onError = {message ->

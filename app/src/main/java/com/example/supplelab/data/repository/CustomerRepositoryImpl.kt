@@ -21,24 +21,27 @@ class CustomerRepositoryImpl: CustomerRepository {
 
     override suspend fun createCustomer(
         user: FirebaseUser?,
-        onSuccess: () -> Unit,
+        onSuccess: (isNewUser: Boolean) -> Unit,
         onError: (String) -> Unit
     ) {
         try {
             if (user != null){
                 val customerCollection = Firebase.firestore.collection("customers")
-                val customer = Customer(
-                    id = user.uid,
-                    firstName = user.displayName?.split(" ")?.firstOrNull() ?: "Unknown",
-                    lastName = user.displayName?.split(" ")?.lastOrNull() ?: "Unknown",
-                    email = user.email ?: "Unknown",
-                )
                 val customerExists = customerCollection.document(user.uid).get().await().exists()
                 if(customerExists){
-                    onSuccess()
+                    // Existing user - not a new user
+                    onSuccess(false)
                 } else {
+                    // New user - create customer with profileComplete = false
+                    val customer = Customer(
+                        id = user.uid,
+                        firstName = user.displayName?.split(" ")?.firstOrNull() ?: "Unknown",
+                        lastName = user.displayName?.split(" ")?.lastOrNull() ?: "Unknown",
+                        email = user.email ?: "Unknown",
+                        profileComplete = false
+                    )
                     customerCollection.document(user.uid).set(customer)
-                    onSuccess()
+                    onSuccess(true)
                 }
 
             } else {
@@ -101,7 +104,8 @@ class CustomerRepositoryImpl: CustomerRepository {
                             "city", customer.city,
                             "postalCode", customer.postalCode,
                             "address", customer.address,
-                            "phoneNumber", customer.phoneNumber
+                            "phoneNumber", customer.phoneNumber,
+                            "profileComplete", customer.profileComplete
                         )
                         .await()
                     onSuccess()

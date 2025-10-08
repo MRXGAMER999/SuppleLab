@@ -42,7 +42,8 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AuthScreen(
-    onNavigateToHome:() -> Unit
+    onNavigateToHome:() -> Unit,
+    onNavigateToProfile:() -> Unit
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -95,7 +96,7 @@ fun AuthScreen(
 
                         authViewModel.createCustomer(
                             user = currentUser,
-                            onSuccess = {
+                            onSuccess = { isNewUser ->
                                 coroutineScope.launch {
                                     isSuccess = true
                                     notificationMessage = "Sign-in successful"
@@ -104,7 +105,13 @@ fun AuthScreen(
                                 signInViewModel.resetState()
                                 coroutineScope.launch {
                                     kotlinx.coroutines.delay(800)
-                                    onNavigateToHome()
+                                    if (isNewUser) {
+                                        // First time user - navigate to profile screen
+                                        onNavigateToProfile()
+                                    } else {
+                                        // Existing user - navigate to home screen
+                                        onNavigateToHome()
+                                    }
                                 }
                             },
                             onError = { error ->

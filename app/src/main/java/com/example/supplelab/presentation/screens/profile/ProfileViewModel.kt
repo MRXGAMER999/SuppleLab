@@ -26,6 +26,7 @@ data class ProfileScreenState(
     val address: String? = null,
     val country: Country = Country.Egypt,
     val phoneNumber: PhoneNumber? = null,
+    val profileComplete: Boolean = false
 )
 
 class ProfileViewModel(
@@ -44,12 +45,19 @@ class ProfileViewModel(
 
     val isFormValid: Boolean
         get() = with(screenState) {
-            firstName.length in 3..50 &&
+            firstName.isNotBlank() &&
+                    firstName.length in 3..50 &&
+                    lastName.isNotBlank() &&
                     lastName.length in 3..50 &&
-                    (city == null || city.length in 3..50) &&
-                    (postalCode == null || postalCode.toString().length in 3..10) &&
-                    (address == null || address.length in 3..50) &&
-                    (phoneNumber == null || phoneNumber.number.length in 5..15)
+                    !city.isNullOrBlank() &&
+                    city.length in 3..50 &&
+                    postalCode != null &&
+                    postalCode.toString().length in 3..10 &&
+                    !address.isNullOrBlank() &&
+                    address.length in 3..50 &&
+                    phoneNumber != null &&
+                    phoneNumber.number.isNotBlank() &&
+                    phoneNumber.number.length in 5..15
         }
 
 
@@ -68,7 +76,8 @@ class ProfileViewModel(
                         address = fetchedCustomer.address,
                         phoneNumber = fetchedCustomer.phoneNumber,
                         country = Country.entries.firstOrNull { it.dialCode == fetchedCustomer.phoneNumber?.dialCode }
-                            ?: Country.Egypt
+                            ?: Country.Egypt,
+                        profileComplete = fetchedCustomer.profileComplete
                     )
                     screenReady = RequestState.Success(Unit)
                 } else if (data.isError()) {
@@ -132,7 +141,8 @@ class ProfileViewModel(
                     city = screenState.city,
                     postalCode = screenState.postalCode,
                     address = screenState.address,
-                    phoneNumber = screenState.phoneNumber
+                    phoneNumber = screenState.phoneNumber,
+                    profileComplete = true
                 ),
                 onSuccess = {
                     onSuccess()
