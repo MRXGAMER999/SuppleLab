@@ -95,7 +95,7 @@ fun NavigationRoot(
                     ) {
                         HomeScreen(
                             onSignOut = {
-                                backStack.remove(key)
+                                backStack.clear()
                                 backStack.add(AuthScreenKey)
                             },
                             onProfileClick = {

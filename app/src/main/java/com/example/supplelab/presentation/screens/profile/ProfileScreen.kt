@@ -46,7 +46,9 @@ fun ProfileScreen(
     onNavigationIconClicked: () -> Unit,
     onNavigateToHome: (() -> Unit)? = null
 ){
-    val viewModel: ProfileViewModel = koinViewModel()
+    // Use current user ID as key to ensure ViewModel is recreated for different users
+    val currentUserId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "no_user"
+    val viewModel: ProfileViewModel = koinViewModel(key = currentUserId)
     val screenState = viewModel.screenState
     val screenReady = viewModel.screenReady
     val coroutineScope = rememberCoroutineScope()
@@ -57,6 +59,11 @@ fun ProfileScreen(
     
     // Track if this is the first time completing the profile
     val isFirstTimeCompletion = !screenState.profileComplete
+    
+    // Force reload data when user ID changes
+    LaunchedEffect(currentUserId) {
+        viewModel.reloadData()
+    }
 
     LaunchedEffect(showNotification) {
         if (showNotification) {

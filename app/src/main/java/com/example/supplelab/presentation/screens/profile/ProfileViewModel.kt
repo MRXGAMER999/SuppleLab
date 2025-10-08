@@ -10,10 +10,8 @@ import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.domain.model.PhoneNumber
 import com.example.supplelab.domain.repository.CustomerRepository
 import com.example.supplelab.util.RequestState
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class ProfileScreenState(
@@ -32,12 +30,6 @@ data class ProfileScreenState(
 class ProfileViewModel(
     private val customerRepository: CustomerRepository
 ) : ViewModel() {
-    private val customer = customerRepository.readCustomerFlow()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = RequestState.Loading
-        )
 
     var screenReady: RequestState<Unit> by mutableStateOf(RequestState.Loading)
     var screenState: ProfileScreenState by mutableStateOf(ProfileScreenState())
@@ -61,9 +53,25 @@ class ProfileViewModel(
         }
 
 
+    private var dataLoadJob: kotlinx.coroutines.Job? = null
+    
     init {
-        viewModelScope.launch {
-            customer.collectLatest { data ->
+        loadCustomerData()
+    }
+    
+    fun reloadData() {
+        // Cancel existing job if any
+        dataLoadJob?.cancel()
+        loadCustomerData()
+    }
+    
+    private fun loadCustomerData() {
+        // Reset state to loading
+        screenReady = RequestState.Loading
+        screenState = ProfileScreenState()
+        
+        dataLoadJob = viewModelScope.launch {
+            customerRepository.readCustomerFlow().collectLatest { data ->
                 if (data.isSuccess()) {
                     val fetchedCustomer = data.getSuccessData()
                     screenState = ProfileScreenState(
