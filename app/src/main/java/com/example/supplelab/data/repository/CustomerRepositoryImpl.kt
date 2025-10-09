@@ -21,16 +21,17 @@ class CustomerRepositoryImpl: CustomerRepository {
 
     override suspend fun createCustomer(
         user: FirebaseUser?,
-        onSuccess: (isNewUser: Boolean) -> Unit,
+        onSuccess: (profileComplete: Boolean) -> Unit,
         onError: (String) -> Unit
     ) {
         try {
             if (user != null){
                 val customerCollection = Firebase.firestore.collection("customers")
-                val customerExists = customerCollection.document(user.uid).get().await().exists()
-                if(customerExists){
-                    // Existing user - not a new user
-                    onSuccess(false)
+                val customerDoc = customerCollection.document(user.uid).get().await()
+                if(customerDoc.exists()){
+                    // Existing user - return their profile completion status
+                    val customer = customerDoc.toObject(Customer::class.java)
+                    onSuccess(customer?.profileComplete ?: false)
                 } else {
                     // New user - create customer with profileComplete = false
                     val customer = Customer(
@@ -41,7 +42,7 @@ class CustomerRepositoryImpl: CustomerRepository {
                         profileComplete = false
                     )
                     customerCollection.document(user.uid).set(customer)
-                    onSuccess(true)
+                    onSuccess(false) // New user, profile not complete
                 }
 
             } else {

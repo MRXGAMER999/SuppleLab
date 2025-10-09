@@ -96,7 +96,7 @@ fun AuthScreen(
 
                         authViewModel.createCustomer(
                             user = currentUser,
-                            onSuccess = { isNewUser ->
+                            onSuccess = { profileComplete ->
                                 coroutineScope.launch {
                                     isSuccess = true
                                     notificationMessage = "Sign-in successful"
@@ -105,12 +105,11 @@ fun AuthScreen(
                                 signInViewModel.resetState()
                                 coroutineScope.launch {
                                     kotlinx.coroutines.delay(800)
-                                    if (isNewUser) {
-                                        // First time user - navigate to profile screen
-                                        onNavigateToProfile()
-                                    } else {
-                                        // Existing user - navigate to home screen
+                                    // Navigate based on profile completion status
+                                    if (profileComplete) {
                                         onNavigateToHome()
+                                    } else {
+                                        onNavigateToProfile()
                                     }
                                 }
                             },

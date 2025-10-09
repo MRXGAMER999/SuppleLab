@@ -9,7 +9,7 @@ interface CustomerRepository {
     fun getCurrentUserId(): String?
     suspend fun createCustomer(
         user: FirebaseUser?,
-        onSuccess: (isNewUser: Boolean) -> Unit,
+        onSuccess: (profileComplete: Boolean) -> Unit,
         onError: (String) -> Unit
     )
     fun readCustomerFlow(): Flow<RequestState<Customer>>
