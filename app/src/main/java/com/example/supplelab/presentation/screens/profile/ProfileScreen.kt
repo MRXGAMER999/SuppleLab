@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.R
 import com.example.supplelab.presentation.componenets.ErrorCard
+import com.example.supplelab.presentation.componenets.InfoCard
 import com.example.supplelab.presentation.componenets.PrimaryButton
 import com.example.supplelab.presentation.componenets.TopNotification
 import com.example.supplelab.presentation.profile.LoadCard
@@ -174,10 +175,10 @@ fun ProfileScreen(
                         }
                     },
                     onError = {message ->
-                        ErrorCard(
-                            modifier = Modifier.fillMaxSize(),
-                            message = message,
-                            fontSize = FontSize.REGULAR
+                        InfoCard(
+                            icon = R.drawable.cat,
+                            title = "Oops",
+                            subtitle = message
                         )
                     }
                 )

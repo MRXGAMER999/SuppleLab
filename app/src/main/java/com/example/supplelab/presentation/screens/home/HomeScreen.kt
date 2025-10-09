@@ -48,7 +48,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     onSignOut: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onAdminPanelClick: () -> Unit
 ) {
     val windowInfo = LocalWindowInfo.current
     val screenWidth = with(LocalDensity.current) {
@@ -113,7 +114,9 @@ fun HomeScreen(
                         }
                     )
                 },
-                onAdminPanelClick = { }
+                onAdminPanelClick = {
+                    onAdminPanelClick()
+                }
             )
 
             Box(

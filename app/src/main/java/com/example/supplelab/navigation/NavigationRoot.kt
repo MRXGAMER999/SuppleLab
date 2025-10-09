@@ -12,6 +12,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.supplelab.domain.repository.CustomerRepository
+import com.example.supplelab.presentation.screens.admin.AdminPanelScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
 import com.example.supplelab.presentation.screens.profile.ProfileScreen
@@ -30,43 +31,28 @@ object HomeScreenKey: NavKey
 @Serializable
 object ProfileScreenKey: NavKey
 
+@Serializable
+object AdminPanelScreenKey: NavKey
+
+
 
 
 @Composable
 fun NavigationRoot(
     modifier: Modifier = Modifier,
 ){
-    val customerRepository: CustomerRepository = koinInject()
     val isUserAuthenticated = remember {
         mutableStateOf(FirebaseAuth.getInstance().currentUser != null)
     }
     
-    var startDestination by remember { mutableStateOf<NavKey?>(null) }
-    
-    // Check profile completion status for authenticated users
-    LaunchedEffect(isUserAuthenticated.value) {
-        startDestination = if (isUserAuthenticated.value) {
-            // User is authenticated, check if profile is complete
-            val customerData = customerRepository.readCustomerFlow().firstOrNull()
-            if (customerData != null && customerData.isSuccess()) {
-                val customer = customerData.getSuccessData()
-                if (customer.profileComplete) {
-                    HomeScreenKey
-                } else {
-                    ProfileScreenKey
-                }
-            } else {
-                HomeScreenKey // Fallback to home if we can't check
-            }
-        } else {
-            AuthScreenKey
-        }
+    // Immediately set start destination without waiting for async operations
+    val startDestination by remember {
+        mutableStateOf<NavKey>(
+            if (isUserAuthenticated.value) HomeScreenKey else AuthScreenKey
+        )
     }
     
-    // Wait until we determine the start destination
-    if (startDestination == null) return
-    
-    val backStack = rememberNavBackStack(startDestination!!)
+    val backStack = rememberNavBackStack(startDestination)
 
     NavDisplay(
         modifier = modifier,
@@ -100,6 +86,9 @@ fun NavigationRoot(
                             },
                             onProfileClick = {
                                 backStack.add(ProfileScreenKey)
+                            },
+                            onAdminPanelClick = {
+                                backStack.add(AdminPanelScreenKey)
                             }
                         )
                     }
@@ -115,6 +104,17 @@ fun NavigationRoot(
                             onNavigateToHome = {
                                 backStack.remove(key)
                                 backStack.add(HomeScreenKey)
+                            }
+                        )
+                    }
+                }
+                is AdminPanelScreenKey -> {
+                    NavEntry(
+                        key = key,
+                    ) {
+                        AdminPanelScreen(
+                            onNavigationIconClicked = {
+                                backStack.remove(key)
                             }
                         )
                     }
