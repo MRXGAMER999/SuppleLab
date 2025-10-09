@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +35,7 @@ import com.example.supplelab.presentation.componenets.TopNotification
 import com.example.supplelab.presentation.profile.CustomDrawerState
 import com.example.supplelab.presentation.profile.isOpened
 import com.example.supplelab.presentation.profile.opposite
+import com.example.supplelab.domain.repository.CustomerRepository
 import com.example.supplelab.presentation.screens.authentication.AuthViewModel
 import com.example.supplelab.presentation.screens.home.component.CustomDrawer
 import com.example.supplelab.presentation.screens.home.component.HomeBottomBar
@@ -41,8 +43,11 @@ import com.example.supplelab.presentation.screens.home.component.HomeTopBar
 import com.example.supplelab.ui.theme.Surface
 import com.example.supplelab.ui.theme.SurfaceLighter
 import com.example.supplelab.util.Constants.ALPHA_DISABLED
+import com.example.supplelab.util.RequestState
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 
 @Composable
@@ -51,6 +56,16 @@ fun HomeScreen(
     onProfileClick: () -> Unit,
     onAdminPanelClick: () -> Unit
 ) {
+    val customerRepository: CustomerRepository = koinInject()
+    
+    // Check profile completion and redirect if needed
+    LaunchedEffect(Unit) {
+        val customer = customerRepository.readCustomerFlow().firstOrNull()
+        if (customer is RequestState.Success && !customer.data.profileComplete) {
+            onProfileClick()
+        }
+    }
+    
     val windowInfo = LocalWindowInfo.current
     val screenWidth = with(LocalDensity.current) {
         windowInfo.containerSize.width.toDp()

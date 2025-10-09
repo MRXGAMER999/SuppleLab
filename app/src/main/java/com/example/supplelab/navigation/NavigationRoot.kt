@@ -1,26 +1,17 @@
 package com.example.supplelab.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.example.supplelab.domain.repository.CustomerRepository
 import com.example.supplelab.presentation.screens.admin.AdminPanelScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
 import com.example.supplelab.presentation.screens.profile.ProfileScreen
-import com.example.supplelab.util.RequestState
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.Serializable
-import org.koin.compose.koinInject
 
 
 @Serializable
@@ -42,32 +33,9 @@ object AdminPanelScreenKey: NavKey
 fun NavigationRoot(
     modifier: Modifier = Modifier,
 ){
-    val customerRepository: CustomerRepository = koinInject()
     val isUserAuthenticated = FirebaseAuth.getInstance().currentUser != null
-    
-    var startDestination by remember { mutableStateOf<NavKey?>(null) }
-    
-    // Determine start destination based on auth and profile completion status
-    LaunchedEffect(Unit) {
-        startDestination = if (!isUserAuthenticated) {
-            AuthScreenKey
-        } else {
-            // User is authenticated, check if profile is complete
-            val customer = customerRepository.readCustomerFlow().firstOrNull()
-            if (customer is RequestState.Success && !customer.data.profileComplete) {
-                ProfileScreenKey
-            } else {
-                HomeScreenKey
-            }
-        }
-    }
-    
-    // Show loading until start destination is determined
-    if (startDestination == null) {
-        return
-    }
-    
-    val backStack = rememberNavBackStack(startDestination!!)
+    val startDestination = if (isUserAuthenticated) HomeScreenKey else AuthScreenKey
+    val backStack = rememberNavBackStack(startDestination)
 
     NavDisplay(
         modifier = modifier,
