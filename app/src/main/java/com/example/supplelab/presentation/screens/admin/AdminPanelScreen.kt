@@ -25,7 +25,8 @@ import com.example.supplelab.ui.theme.TextPrimary
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminPanelScreen(
-    onNavigationIconClicked: () -> Unit
+    onNavigationIconClicked: () -> Unit,
+    onNavigationToManageProduct: (String?) -> Unit
 ) {
     Scaffold(
         containerColor = Surface,
@@ -72,7 +73,9 @@ fun AdminPanelScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {},
+                onClick = {
+                    onNavigationToManageProduct(null)
+                },
                 containerColor = ButtonPrimary,
                 contentColor = IconPrimary,
                 content = {

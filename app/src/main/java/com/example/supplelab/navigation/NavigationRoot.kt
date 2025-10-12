@@ -6,6 +6,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.example.supplelab.presentation.screens.ManageProduct.ManageProductScreen
 import com.example.supplelab.presentation.screens.admin.AdminPanelScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
@@ -25,6 +26,11 @@ object ProfileScreenKey: NavKey
 
 @Serializable
 object AdminPanelScreenKey: NavKey
+
+@Serializable
+data class ManageProductScreenKey(
+    val id: String? = null
+) : NavKey
 
 
 
@@ -96,6 +102,21 @@ fun NavigationRoot(
                         key = key,
                     ) {
                         AdminPanelScreen(
+                            onNavigationIconClicked = {
+                                backStack.remove(key)
+                            },
+                            onNavigationToManageProduct = { id ->
+                                backStack.add(ManageProductScreenKey(id))
+                            }
+                        )
+                    }
+                }
+                is ManageProductScreenKey -> {
+                    NavEntry(
+                        key = key,
+                    ) {
+                        ManageProductScreen(
+                            id = key.id,
                             onNavigationIconClicked = {
                                 backStack.remove(key)
                             }
