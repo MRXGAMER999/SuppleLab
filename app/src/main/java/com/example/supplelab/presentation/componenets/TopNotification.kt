@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.R
@@ -33,7 +34,8 @@ fun TopNotification(
     isSuccess: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    durationMillis: Long = 2000L
+    durationMillis: Long = 2000L,
+    color: Color = if (isSuccess) SurfaceBrand else SurfaceError
 ) {
     LaunchedEffect(visible) {
         if (visible) {
@@ -51,7 +53,7 @@ fun TopNotification(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(if (isSuccess) SurfaceBrand else SurfaceError)
+                .background(color)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .systemBarsPadding(),
             verticalAlignment = Alignment.CenterVertically
