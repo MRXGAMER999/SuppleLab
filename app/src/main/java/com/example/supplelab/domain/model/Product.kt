@@ -13,7 +13,7 @@ data class Product(
     val id: String,
     val title: String,
     val description: String,
-    val thumbnail: Double,
+    val thumbnail: String,
     val category: String,
     val flavors: List<String>? = null,
     val weight: Int? = null,
