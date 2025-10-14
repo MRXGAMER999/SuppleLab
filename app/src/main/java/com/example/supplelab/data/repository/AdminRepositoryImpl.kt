@@ -1,6 +1,8 @@
 package com.example.supplelab.data.repository
 
+import android.content.Context
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import com.example.supplelab.domain.model.Product
 import com.example.supplelab.domain.repository.AdminRepository
 import com.google.firebase.Firebase
@@ -12,7 +14,7 @@ import kotlinx.coroutines.withTimeout
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-class AdminRepositoryImpl: AdminRepository {
+class AdminRepositoryImpl(private val context: Context): AdminRepository {
     override fun getCurrentUserId() = Firebase.auth.currentUser?.uid
 
     override suspend fun createNewProduct(
@@ -40,7 +42,12 @@ class AdminRepositoryImpl: AdminRepository {
     override suspend fun uploadImageToStorage(uri: Uri): String? {
         return if (getCurrentUserId() != null){
             val storage = Firebase.storage.reference
-            val imagePath = storage.child("images/${Uuid.random().toHexString()}")
+
+            // Get file extension from URI
+            val extension = getFileExtension(uri) ?: "jpg" // Default to jpg if extension can't be determined
+            val fileName = "${Uuid.random().toHexString()}.$extension"
+            val imagePath = storage.child("images/$fileName")
+
             try {
                 withTimeout(timeMillis = 20000L){
                     imagePath.putFile(uri).await()
@@ -50,5 +57,12 @@ class AdminRepositoryImpl: AdminRepository {
                 null
             }
         } else null
+    }
+
+    // Get the file extension from the URI
+    private fun getFileExtension(uri: Uri): String? {
+        val contentResolver = context.contentResolver
+        val mimeTypeMap = MimeTypeMap.getSingleton()
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri))
     }
 }

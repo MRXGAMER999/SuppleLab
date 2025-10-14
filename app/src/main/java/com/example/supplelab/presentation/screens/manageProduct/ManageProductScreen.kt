@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.supplelab.R
@@ -197,17 +198,53 @@ fun ManageProductScreen(
                                 LoadCard(modifier = Modifier.fillMaxSize())
                             },
                             onSuccess = {
+                                val context = LocalContext.current
+                                var imageLoadState by remember { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
+
                                 AsyncImage(
                                     modifier = Modifier.fillMaxSize(),
-                                    model = ImageRequest.Builder(
-                                        LocalContext.current
-                                    ).data(screenState.thumbnail)
+                                    model = ImageRequest.Builder(context)
+                                        .data(screenState.thumbnail)
                                         .crossfade(true)
                                         .build(),
                                     contentDescription = "Product Thumbnail",
-                                    contentScale = ContentScale.Crop
+                                    contentScale = ContentScale.Crop,
+                                    onState = { state ->
+                                        imageLoadState = state
+                                        when (state) {
+                                            is AsyncImagePainter.State.Error -> {
+                                                android.util.Log.e("ManageProduct", "Image load error: ${state.result.throwable.message}")
+                                                android.util.Log.e("ManageProduct", "Image URL: ${screenState.thumbnail}")
+                                            }
+                                            is AsyncImagePainter.State.Success -> {
+                                                android.util.Log.d("ManageProduct", "Image loaded successfully: ${screenState.thumbnail}")
+                                            }
+                                            else -> {}
+                                        }
+                                    }
                                 )
 
+                                // Show error overlay if image failed to load
+                                if (imageLoadState is AsyncImagePainter.State.Error) {
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Icon(
+                                            modifier = Modifier.size(48.dp),
+                                            painter = painterResource(R.drawable.alert_triangle),
+                                            contentDescription = "Error Icon",
+                                            tint = TextSecondary
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Failed to load image",
+                                            fontSize = FontSize.SMALL,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
                             },
                             onError = {message ->
                                 Column(modifier = Modifier.fillMaxSize(),

@@ -9,5 +9,5 @@ import kotlin.math.sin
 
 val repositoryModule = module {
     single<CustomerRepository> { CustomerRepositoryImpl() }
-    single <AdminRepository> { AdminRepositoryImpl() }
+    single<AdminRepository> { AdminRepositoryImpl(get()) }
 }
