@@ -18,7 +18,7 @@ enum class Country(
         code = "SA",
         flag = R.drawable.sa
     ),
-    kwait(
+    Kuwait(
         dialCode = 965,
         code = "KW",
         flag = R.drawable.kw

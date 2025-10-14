@@ -1,5 +1,6 @@
 package com.example.supplelab.presentation.screens.manageProduct
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.supplelab.domain.model.Product
 import com.example.supplelab.domain.model.ProductCategory
 import com.example.supplelab.domain.repository.AdminRepository
+import com.example.supplelab.util.RequestState
 import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -30,6 +32,9 @@ class ManageProductViewModel(
     var screenState by mutableStateOf(ManageProductState())
         private set
 
+    var thumbnailUploaderState: RequestState<Unit> by mutableStateOf(RequestState.Idle)
+        private set
+
     val isFormValid: Boolean
         get() = screenState.title.isNotEmpty() &&
                 screenState.description.isNotEmpty() &&
@@ -44,6 +49,9 @@ class ManageProductViewModel(
     }
     fun updateThumbnail(value: String) {
         screenState = screenState.copy(thumbnail = value)
+    }
+    fun updateThumbnailUploaderState(value: RequestState<Unit>) {
+        thumbnailUploaderState = value
     }
     fun updateCategory(value: ProductCategory) {
         screenState = screenState.copy(category = value)
@@ -79,5 +87,27 @@ class ManageProductViewModel(
             )
         }
     }
-
+    fun uploadThumbnailToStorage(
+        uri: Uri?,
+        onSuccess: () -> Unit){
+        if(uri == null){
+            updateThumbnailUploaderState(RequestState.Error("File is null. Error in selecting the image"))
+            return
+        }
+        updateThumbnailUploaderState(RequestState.Loading)
+        viewModelScope.launch {
+            try {
+              val downloadUrl = adminRepository.uploadImageToStorage(uri)
+                if (downloadUrl.isNullOrEmpty()) {
+                    throw Exception("Failed to retrieve download URL after the upload.")
+                    return@launch
+                }
+                onSuccess()
+                updateThumbnailUploaderState(RequestState.Success(Unit))
+                updateThumbnail(downloadUrl)
+            } catch (e: Exception) {
+                updateThumbnailUploaderState(RequestState.Error(e.message ?: "An unexpected error occurred"))
+            }
+        }
+    }
 }

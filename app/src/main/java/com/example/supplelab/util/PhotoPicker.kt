@@ -9,25 +9,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 
 
 class PhotoPicker {
-    private var openPhotoPicker by mutableStateOf(false)
+    var openPhotoPicker by mutableStateOf(false)
+        private set
 
     @Composable
     fun InitializePhotoPicker(
         onImageSelect: (Uri?) -> Unit
     ){
-        val openPhotoPickerState = remember { openPhotoPicker }
         val pickMedia = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickVisualMedia()
         ) { uri ->
             onImageSelect(uri)
             openPhotoPicker = false
         }
-        LaunchedEffect(openPhotoPickerState) {
-            if (openPhotoPickerState) {
+
+        LaunchedEffect(openPhotoPicker) {
+            if (openPhotoPicker) {
                 pickMedia.launch(
                     PickVisualMediaRequest(
                         ActivityResultContracts.PickVisualMedia.ImageOnly

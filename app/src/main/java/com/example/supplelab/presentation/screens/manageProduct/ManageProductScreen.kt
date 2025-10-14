@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -17,11 +18,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -32,16 +35,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.example.supplelab.R
 import com.example.supplelab.domain.model.ProductCategory
 import com.example.supplelab.presentation.componenets.AlertTextField
 import com.example.supplelab.presentation.componenets.CustomTextField
+import com.example.supplelab.presentation.componenets.ErrorCard
 import com.example.supplelab.presentation.componenets.PrimaryButton
 import com.example.supplelab.presentation.componenets.TopNotification
 import com.example.supplelab.presentation.componenets.dialog.CategoriesDialog
+import com.example.supplelab.presentation.profile.LoadCard
 import com.example.supplelab.ui.theme.BebasNeueFont
 import com.example.supplelab.ui.theme.BorderIdle
 import com.example.supplelab.ui.theme.FontSize
@@ -49,7 +60,12 @@ import com.example.supplelab.ui.theme.IconPrimary
 import com.example.supplelab.ui.theme.Surface
 import com.example.supplelab.ui.theme.SurfaceLighter
 import com.example.supplelab.ui.theme.TextPrimary
+import com.example.supplelab.ui.theme.TextSecondary
+import com.example.supplelab.util.DisplayResult
+import com.example.supplelab.util.PhotoPicker
+import com.example.supplelab.util.RequestState
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,15 +73,30 @@ fun ManageProductScreen(
     id: String?,
     onNavigationIconClicked: () -> Unit
 ) {
-    val viewModel = koinViewModel<ManageProductViewModel>()
-    var showCategoriesDialog by remember { mutableStateOf(false) }
-    val screenState = viewModel.screenState
-    val isFormValid = viewModel.isFormValid
-
     // Notification state
     var showNotification by remember { mutableStateOf(false) }
     var notificationMessage by remember { mutableStateOf("") }
     var notificationIsSuccess by remember { mutableStateOf(true) }
+    val viewModel = koinViewModel<ManageProductViewModel>()
+    var showCategoriesDialog by remember { mutableStateOf(false) }
+    val screenState = viewModel.screenState
+    val isFormValid = viewModel.isFormValid
+    val thumbnailUploaderState = viewModel.thumbnailUploaderState
+    val photoPicker = koinInject<PhotoPicker>()
+    photoPicker.InitializePhotoPicker(
+        onImageSelect = { uri ->
+            viewModel.uploadThumbnailToStorage(
+                uri = uri,
+                onSuccess = {
+                    notificationMessage = "Thumbnail uploaded successfully"
+                    notificationIsSuccess = true
+                    showNotification = true
+                }
+            )
+        }
+    )
+
+
 
     AnimatedVisibility(
         visible = showCategoriesDialog
@@ -115,7 +146,6 @@ fun ManageProductScreen(
         },
 
         ) { paddingValues ->
-        // Wrap content in a Box so we can overlay the TopNotification at the top
         Box(
             modifier = Modifier
                 .padding(paddingValues)
@@ -146,14 +176,64 @@ fun ManageProductScreen(
                                 shape = RoundedCornerShape(12.dp)
                             )
                             .background(SurfaceLighter)
-                            .clickable { },
+                            .clickable(
+                                enabled = thumbnailUploaderState.isIdle()
+                            ) {
+                                photoPicker.open()
+
+                            },
                         contentAlignment = Alignment.Center
                     ){
-                        Icon(
-                            modifier = Modifier.size(24.dp),
-                            painter = painterResource(R.drawable.plus),
-                            contentDescription = "Add Icon",
-                            tint = IconPrimary
+                        thumbnailUploaderState.DisplayResult(
+                            onIdle = {
+                                Icon(
+                                    modifier = Modifier.size(24.dp),
+                                    painter = painterResource(R.drawable.plus),
+                                    contentDescription = "Plus Icon",
+                                    tint = IconPrimary
+                                )
+                            },
+                            onLoading = {
+                                LoadCard(modifier = Modifier.fillMaxSize())
+                            },
+                            onSuccess = {
+                                AsyncImage(
+                                    modifier = Modifier.fillMaxSize(),
+                                    model = ImageRequest.Builder(
+                                        LocalContext.current
+                                    ).data(screenState.thumbnail)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = "Product Thumbnail",
+                                    contentScale = ContentScale.Crop
+                                )
+
+                            },
+                            onError = {message ->
+                                Column(modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    ErrorCard(message = message)
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.updateThumbnailUploaderState(RequestState.Idle)
+                                        },
+                                        colors = ButtonDefaults.textButtonColors(
+                                            containerColor = Color.Transparent,
+                                            contentColor = TextSecondary
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "Retry",
+                                            fontSize = FontSize.SMALL,
+                                            color = TextPrimary
+                                        )
+                                    }
+
+                                }
+                            },
                         )
                     }
                     CustomTextField(

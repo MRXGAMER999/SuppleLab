@@ -41,6 +41,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -65,6 +66,9 @@ dependencies {
 
     // Google Sign-In
     implementation(libs.play.services.auth)
+
+    // Image loading
+    implementation(libs.coil.compose)
 
     // Navigation
     implementation(libs.androidx.navigation3.runtime)
