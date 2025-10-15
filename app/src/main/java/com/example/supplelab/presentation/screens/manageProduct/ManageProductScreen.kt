@@ -56,6 +56,7 @@ import com.example.supplelab.presentation.componenets.dialog.CategoriesDialog
 import com.example.supplelab.presentation.profile.LoadCard
 import com.example.supplelab.ui.theme.BebasNeueFont
 import com.example.supplelab.ui.theme.BorderIdle
+import com.example.supplelab.ui.theme.ButtonPrimary
 import com.example.supplelab.ui.theme.FontSize
 import com.example.supplelab.ui.theme.IconPrimary
 import com.example.supplelab.ui.theme.Surface
@@ -200,29 +201,66 @@ fun ManageProductScreen(
                             onSuccess = {
                                 val context = LocalContext.current
                                 var imageLoadState by remember { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
-
-                                AsyncImage(
+                                Box(
                                     modifier = Modifier.fillMaxSize(),
-                                    model = ImageRequest.Builder(context)
-                                        .data(screenState.thumbnail)
-                                        .crossfade(true)
-                                        .build(),
-                                    contentDescription = "Product Thumbnail",
-                                    contentScale = ContentScale.Crop,
-                                    onState = { state ->
-                                        imageLoadState = state
-                                        when (state) {
-                                            is AsyncImagePainter.State.Error -> {
-                                                android.util.Log.e("ManageProduct", "Image load error: ${state.result.throwable.message}")
-                                                android.util.Log.e("ManageProduct", "Image URL: ${screenState.thumbnail}")
+                                    contentAlignment = Alignment.TopEnd) {
+                                    AsyncImage(
+                                        modifier = Modifier.fillMaxSize(),
+                                        model = ImageRequest.Builder(context)
+                                            .data(screenState.thumbnail)
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = "Product Thumbnail",
+                                        contentScale = ContentScale.Crop,
+                                        onState = { state ->
+                                            imageLoadState = state
+                                            when (state) {
+                                                is AsyncImagePainter.State.Error -> {
+                                                    android.util.Log.e("ManageProduct", "Image load error: ${state.result.throwable.message}")
+                                                    android.util.Log.e("ManageProduct", "Image URL: ${screenState.thumbnail}")
+                                                }
+                                                is AsyncImagePainter.State.Success -> {
+                                                    android.util.Log.d("ManageProduct", "Image loaded successfully: ${screenState.thumbnail}")
+                                                }
+                                                else -> {}
                                             }
-                                            is AsyncImagePainter.State.Success -> {
-                                                android.util.Log.d("ManageProduct", "Image loaded successfully: ${screenState.thumbnail}")
-                                            }
-                                            else -> {}
                                         }
+                                    )
+                                    Box(
+                                        modifier = Modifier
+
+                                            .padding(
+                                                top =12.dp,
+                                                end = 12.dp
+                                            )
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(ButtonPrimary)
+                                            .clickable {
+                                                viewModel.deleteThumbnailFromStorage(
+                                                    onSuccess = {
+                                                        notificationMessage = "Thumbnail deleted successfully"
+                                                        notificationIsSuccess = true
+                                                        showNotification = true
+                                                    },
+                                                    onError = { error ->
+                                                        notificationMessage = error
+                                                        notificationIsSuccess = false
+                                                        showNotification = true
+                                                    }
+                                                )
+                                            }
+                                            .padding(12.dp),
+                                        contentAlignment = Alignment.Center
+
+                                    ){
+                                        Icon(
+                                            modifier = Modifier.size(24.dp),
+                                            painter = painterResource(R.drawable.delete),
+                                            contentDescription = "Delete Icon",
+                                        )
                                     }
-                                )
+                                }
+
 
                                 // Show error overlay if image failed to load
                                 if (imageLoadState is AsyncImagePainter.State.Error) {

@@ -11,6 +11,7 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeout
+import java.net.URLDecoder
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -57,6 +58,54 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
                 null
             }
         } else null
+    }
+
+    override suspend fun deleteImageFromStorage(
+        imageUrl: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            if (getCurrentUserId() != null) {
+                val storagePath = extractFirebaseStoragePath(imageUrl)
+                if (storagePath != null) {
+                    val storage = Firebase.storage.reference
+                    val imageRef = storage.child(storagePath)
+
+                    withTimeout(timeMillis = 20000L) {
+                        imageRef.delete().await()
+                    }
+                    onSuccess()
+                } else {
+                    onError("Invalid image URL")
+                }
+            } else {
+                onError("User not authenticated")
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Failed to delete image")
+        }
+    }
+
+    private fun extractFirebaseStoragePath(imageUrl: String): String? {
+        return try {
+            // Firebase Storage download URLs have format:
+            // https://firebasestorage.googleapis.com/v0/b/bucket-name/o/path%2Fto%2Ffile.jpg?alt=media&token=...
+
+            // Extract the path between "/o/" and "?"
+            val startIndex = imageUrl.indexOf("/o/")
+            val endIndex = imageUrl.indexOf("?")
+
+            if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+                val encodedPath = imageUrl.substring(startIndex + 3, endIndex)
+                // Decode URL encoding (e.g., %2F -> /)
+                URLDecoder.decode(encodedPath, "UTF-8")
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     // Get the file extension from the URI
