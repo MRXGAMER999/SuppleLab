@@ -7,10 +7,14 @@ import com.example.supplelab.ui.theme.CategoryPurple
 import com.example.supplelab.ui.theme.CategoryRed
 import com.example.supplelab.ui.theme.CategoryYellow
 import kotlinx.serialization.Serializable
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 @Serializable
-data class Product(
+@OptIn(ExperimentalTime::class)
+data class Product (
     val id: String,
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     val title: String,
     val description: String,
     val thumbnail: String,

@@ -26,11 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.R
-import com.example.supplelab.presentation.componenets.ErrorCard
 import com.example.supplelab.presentation.componenets.InfoCard
 import com.example.supplelab.presentation.componenets.PrimaryButton
 import com.example.supplelab.presentation.componenets.TopNotification
-import com.example.supplelab.presentation.profile.LoadCard
+import com.example.supplelab.presentation.profile.LoadingCard
 import com.example.supplelab.presentation.profile.ProfileForm
 import com.example.supplelab.ui.theme.BebasNeueFont
 import com.example.supplelab.ui.theme.FontSize
@@ -120,7 +119,7 @@ fun ProfileScreen(
             ) {
                 screenReady.DisplayResult(
                     onLoading = {
-                        LoadCard(modifier = Modifier.fillMaxSize())
+                        LoadingCard(modifier = Modifier.fillMaxSize())
                     },
                     onSuccess = { state ->
                         Column(

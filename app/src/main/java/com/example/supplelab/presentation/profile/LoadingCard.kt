@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.example.supplelab.ui.theme.IconPrimary
 
 @Composable
-fun LoadCard(
+fun LoadingCard(
     modifier: Modifier = Modifier,
 ) {
     Box(

@@ -2,6 +2,8 @@ package com.example.supplelab.domain.repository
 
 import android.net.Uri
 import com.example.supplelab.domain.model.Product
+import com.example.supplelab.util.RequestState
+import kotlinx.coroutines.flow.Flow
 
 interface AdminRepository {
     fun getCurrentUserId(): String?
@@ -17,4 +19,5 @@ interface AdminRepository {
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     )
+    fun readLastTenProduct(): Flow<RequestState<List<Product>>>
 }

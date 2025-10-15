@@ -53,7 +53,7 @@ import com.example.supplelab.presentation.componenets.ErrorCard
 import com.example.supplelab.presentation.componenets.PrimaryButton
 import com.example.supplelab.presentation.componenets.TopNotification
 import com.example.supplelab.presentation.componenets.dialog.CategoriesDialog
-import com.example.supplelab.presentation.profile.LoadCard
+import com.example.supplelab.presentation.profile.LoadingCard
 import com.example.supplelab.ui.theme.BebasNeueFont
 import com.example.supplelab.ui.theme.BorderIdle
 import com.example.supplelab.ui.theme.ButtonPrimary
@@ -196,7 +196,7 @@ fun ManageProductScreen(
                                 )
                             },
                             onLoading = {
-                                LoadCard(modifier = Modifier.fillMaxSize())
+                                LoadingCard(modifier = Modifier.fillMaxSize())
                             },
                             onSuccess = {
                                 val context = LocalContext.current
@@ -330,19 +330,27 @@ fun ManageProductScreen(
                             showCategoriesDialog = true
                         }
                     )
-                    CustomTextField(
-                        value = "${screenState.weight ?: ""}",
-                        onValueChange = { viewModel.updateWeight(it.toIntOrNull() ?: 0)},
-                        placeholder = "Weight (Optional)",
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        )
-                    )
-                    CustomTextField(
-                        value = screenState.flavors,
-                        onValueChange = viewModel::updateFlavors,
-                        placeholder = "Flavors (Optional)"
-                    )
+                    AnimatedVisibility(
+                        visible = screenState.category != ProductCategory.Accessories
+                    ) {
+                        Column {
+                            CustomTextField(
+                                value = "${screenState.weight ?: ""}",
+                                onValueChange = { viewModel.updateWeight(it.toIntOrNull() ?: 0)},
+                                placeholder = "Weight",
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number
+                                )
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            CustomTextField(
+                                value = screenState.flavors,
+                                onValueChange = viewModel::updateFlavors,
+                                placeholder = "Flavors"
+                            )
+                        }
+                    }
+
                     CustomTextField(
                         value = "${screenState.price}",
                         onValueChange = { value ->
