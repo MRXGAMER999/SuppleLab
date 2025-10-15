@@ -82,10 +82,12 @@ fun ManageProductScreen(
     var notificationIsSuccess by remember { mutableStateOf(true) }
     val viewModel = koinViewModel<ManageProductViewModel>()
 
-    // Load product if id is provided
+    // Load product if id is provided, otherwise reset to create new
     LaunchedEffect(id) {
         if (id != null) {
             viewModel.loadProduct(id)
+        } else {
+            viewModel.resetState()
         }
     }
 

@@ -59,6 +59,11 @@ class ManageProductViewModel(
         }
     }
 
+    fun resetState() {
+        screenState = ManageProductState()
+        thumbnailUploaderState = RequestState.Idle
+    }
+
     fun updateTitle(value: String) {
         screenState = screenState.copy(title = value)
     }
