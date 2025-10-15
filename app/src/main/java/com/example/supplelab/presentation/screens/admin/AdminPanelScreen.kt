@@ -116,7 +116,7 @@ fun AdminPanelScreen(
                     ) { product ->
                         ProductCard(
                             product = product,
-                            onClick = { }
+                            onClick = { onNavigationToManageProduct(product.id) }
                         )
                     }
                 }

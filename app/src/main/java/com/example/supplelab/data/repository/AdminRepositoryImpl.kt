@@ -132,6 +132,45 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
         }
     }
 
+    override suspend fun readProductById(id: String): RequestState<Product> {
+         return try {
+            val userId = getCurrentUserId()
+            if (userId != null) {
+                val database = Firebase.firestore
+                val productDocument = database.collection("products")
+                    .document(id)
+                    .get()
+                    .await()
+                if (productDocument.exists()){
+                    val product = Product(
+                        id = productDocument.id,
+                        title = productDocument.getString("title") ?: "",
+                        createdAt = productDocument.getLong("createdAt") ?: 0L,
+                        description = productDocument.getString("description") ?: "",
+                        thumbnail = productDocument.getString("thumbnail") ?: "",
+                        category = productDocument.getString("category") ?: "",
+                        flavors = (productDocument.get("flavors") as? List<*>)?.mapNotNull { it as? String },
+                        weight = productDocument.getLong("weight")?.toInt(),
+                        price = productDocument.getDouble("price") ?: 0.0,
+                        isPopular = productDocument.getBoolean("isPopular") ?: false,
+                        isNew = productDocument.getBoolean("isNew") ?: false,
+                        isDiscounted = productDocument.getBoolean("isDiscounted") ?: false,
+                    )
+                    RequestState.Success(product)
+                } else {
+                    RequestState.Error("Product not found")
+                }
+
+            } else {
+                return RequestState.Error("User not authenticated")
+            }
+
+        } catch (e: Exception) {
+            return RequestState.Error("Error fetching product: ${e.message}")
+
+        }
+    }
+
     private fun extractFirebaseStoragePath(imageUrl: String): String? {
         return try {
             // Firebase Storage download URLs have format:
