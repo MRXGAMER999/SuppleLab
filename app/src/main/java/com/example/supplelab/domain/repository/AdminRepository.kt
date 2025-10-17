@@ -23,4 +23,17 @@ interface AdminRepository {
 
     suspend fun readProductById(id: String): RequestState<Product>
 
+    suspend fun updateImageThumbnail(
+        productId: String,
+        imageUrl: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    )
+
+    suspend fun updateProduct(
+        product: Product,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    )
+
 }

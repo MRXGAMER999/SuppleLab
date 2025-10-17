@@ -34,7 +34,9 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
             if (currentUser != null) {
                 val firestore = Firebase.firestore
                 val productCollection = firestore.collection("products")
-                productCollection.document(product.id).set(product)
+                productCollection
+                    .document(product.id)
+                    .set(product)
                 onSuccess()
             } else {
                 onError("User not authenticated")
@@ -171,6 +173,8 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
         }
     }
 
+
+
     private fun extractFirebaseStoragePath(imageUrl: String): String? {
         return try {
             // Firebase Storage download URLs have format:
@@ -197,5 +201,66 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
         val contentResolver = context.contentResolver
         val mimeTypeMap = MimeTypeMap.getSingleton()
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri))
+    }
+
+
+
+    override suspend fun updateImageThumbnail(
+        productId: String,
+        imageUrl: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            val getCurrentUserId = getCurrentUserId()
+            if (getCurrentUserId != null) {
+                val database = Firebase.firestore
+                val productDocument = database.collection("products")
+                val existingProduct = productDocument
+                    .document(productId)
+                    .get()
+                    .await()
+                if (existingProduct.exists()) {
+                    productDocument.document(productId)
+                        .update("thumbnail", imageUrl)
+                    onSuccess()
+                } else {
+                    onError("Product not found")
+                }
+            } else{
+                onError("User not authenticated")
+            }
+        } catch (e: Exception) {
+            onError("Error updating image thumbnail: ${e.message}")
+        }
+    }
+
+    override suspend fun updateProduct(
+        product: Product,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            val getCurrentUserId = getCurrentUserId()
+            if (getCurrentUserId != null) {
+                val database = Firebase.firestore
+                val productDocument = database.collection("products")
+                val existingProduct = productDocument
+                    .document(product.id)
+                    .get()
+                    .await()
+                if (existingProduct.exists()) {
+                    productDocument.document(product.id)
+                        .set(product) //could be a problem
+                    onSuccess()
+                } else {
+                    onError("Err Product not found")
+                }
+            } else{
+                onError("User not authenticated")
+            }
+        } catch (e: Exception) {
+            onError("Error updating image thumbnail: ${e.message}")
+        }
     }
 }

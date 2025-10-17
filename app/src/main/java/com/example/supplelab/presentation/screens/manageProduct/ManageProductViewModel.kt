@@ -11,12 +11,15 @@ import com.example.supplelab.domain.model.ProductCategory
 import com.example.supplelab.domain.repository.AdminRepository
 import com.example.supplelab.util.RequestState
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
 data class ManageProductState(
     val id: String = Uuid.random().toHexString(),
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     val title: String = "",
     val description: String = "",
     val thumbnail: String = "thumbnail image",
@@ -24,6 +27,7 @@ data class ManageProductState(
     val flavors: String = "",
     val weight: Int? = null,
     val price: Double = 0.0,
+    val isExistingProduct: Boolean = false
 )
 
 class ManageProductViewModel(
@@ -47,14 +51,19 @@ class ManageProductViewModel(
             if (selectedProduct.isSuccess()) {
                 val product = selectedProduct.getSuccessData()
                 updateTitle(product.title)
+                updateCreatedAt(product.createdAt)
                 updateDescription(product.description)
                 updateThumbnail(product.thumbnail)
-                updateThumbnailUploaderState(RequestState.Success(Unit))
+                if (product.thumbnail.isNotEmpty()) {
+                    updateThumbnailUploaderState(RequestState.Success(Unit))
+                } else {
+                    updateThumbnailUploaderState(RequestState.Idle)
+                }
                 updateCategory(ProductCategory.valueOf(product.category))
                 updateFlavors(product.flavors?.joinToString(",") ?: "")
                 updateWeight(product.weight)
                 updatePrice(product.price)
-                screenState = screenState.copy(id = product.id)
+                screenState = screenState.copy(id = product.id, isExistingProduct = true)
             }
         }
     }
@@ -62,6 +71,9 @@ class ManageProductViewModel(
     fun resetState() {
         screenState = ManageProductState()
         thumbnailUploaderState = RequestState.Idle
+    }
+    fun updateCreatedAt(value: Long) {
+        screenState = screenState.copy(createdAt = value)
     }
 
     fun updateTitle(value: String) {
@@ -133,9 +145,26 @@ class ManageProductViewModel(
                 if (downloadUrl.isNullOrEmpty()) {
                     throw Exception("Failed to retrieve download URL after the upload.")
                 }
-                onSuccess()
-                updateThumbnailUploaderState(RequestState.Success(Unit))
-                updateThumbnail(downloadUrl)
+                // Only update Firestore if this is an existing product
+                if (screenState.isExistingProduct) {
+                    adminRepository.updateImageThumbnail(
+                        productId = screenState.id,
+                        imageUrl = downloadUrl,
+                        onSuccess = {
+                            onSuccess()
+                            updateThumbnailUploaderState(RequestState.Success(Unit))
+                            updateThumbnail(downloadUrl)
+                        },
+                        onError = { message ->
+                            updateThumbnailUploaderState(RequestState.Error(message))
+                        }
+                    )
+                } else {
+                    // For new products, just update the local state
+                    onSuccess()
+                    updateThumbnailUploaderState(RequestState.Success(Unit))
+                    updateThumbnail(downloadUrl)
+                }
             } catch (e: Exception) {
                 updateThumbnailUploaderState(
                     RequestState.Error(
@@ -144,6 +173,36 @@ class ManageProductViewModel(
                 )
             }
         }
+    }
+    fun updateProduct(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ){
+        if(isFormValid){
+            viewModelScope.launch {
+                adminRepository.updateProduct(
+                    product = Product(
+                        id = screenState.id,
+                        createdAt = screenState.createdAt,
+                        title = screenState.title,
+                        description = screenState.description,
+                        thumbnail = screenState.thumbnail,
+                        category = screenState.category.name,
+                        flavors = screenState.flavors.split(",")
+                            .map { it.trim() }
+                            .filter { it.isNotEmpty() },
+                        weight = screenState.weight,
+                        price = screenState.price,
+                    ),
+                    onSuccess = onSuccess,
+                    onError = onError
+                )
+            }
+
+        } else {
+            onError("Please fill in all required fields.")
+        }
+
     }
 
     fun deleteThumbnailFromStorage(
@@ -154,9 +213,28 @@ class ManageProductViewModel(
             adminRepository.deleteImageFromStorage(
                 imageUrl = screenState.thumbnail,
                 onSuccess = {
-                    updateThumbnail("")
-                    updateThumbnailUploaderState(RequestState.Idle)
-                    onSuccess()
+                    // Handle both existing and non-existing products
+                    if (screenState.isExistingProduct) {
+                        viewModelScope.launch {
+                            adminRepository.updateImageThumbnail(
+                                productId = screenState.id,
+                                imageUrl = "",
+                                onSuccess = {
+                                    updateThumbnail("")
+                                    onSuccess()
+                                    updateThumbnailUploaderState(RequestState.Idle)
+                                },
+                                onError = { message ->
+                                    updateThumbnailUploaderState(RequestState.Error(message))
+                                }
+                            )
+                        }
+                    } else {
+                        // For non-existing products, just update the local state
+                        updateThumbnail("")
+                        onSuccess()
+                        updateThumbnailUploaderState(RequestState.Idle)
+                    }
                 },
                 onError = onError
             )

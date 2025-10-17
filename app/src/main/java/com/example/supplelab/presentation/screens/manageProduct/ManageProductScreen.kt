@@ -82,7 +82,7 @@ fun ManageProductScreen(
     var notificationIsSuccess by remember { mutableStateOf(true) }
     val viewModel = koinViewModel<ManageProductViewModel>()
 
-    // Load product if id is provided, otherwise reset to create new
+
     LaunchedEffect(id) {
         if (id != null) {
             viewModel.loadProduct(id)
@@ -382,18 +382,33 @@ fun ManageProductScreen(
                         else R.drawable.check ,
                         enabled = isFormValid,
                         onClick = {
-                            viewModel.createNewProduct(
-                                onSuccess = {
-                                    notificationMessage = if (id == null) "Product created successfully" else "Product updated successfully"
-                                    notificationIsSuccess = true
-                                    showNotification = true
-                                },
-                                onError = { error ->
-                                    notificationMessage = error
-                                    notificationIsSuccess = false
-                                    showNotification = true
-                                }
-                            )
+                            if(id == null){
+                                viewModel.createNewProduct(
+                                    onSuccess = {
+                                        notificationMessage = "Product created successfully"
+                                        notificationIsSuccess = true
+                                        showNotification = true
+                                    },
+                                    onError = { error ->
+                                        notificationMessage = error
+                                        notificationIsSuccess = false
+                                        showNotification = true
+                                    }
+                                )
+                            } else {
+                                viewModel.updateProduct(
+                                    onSuccess = {
+                                        notificationMessage = "Product updated successfully"
+                                        notificationIsSuccess = true
+                                        showNotification = true
+                                    },
+                                    onError = { error ->
+                                        notificationMessage = error
+                                        notificationIsSuccess = false
+                                        showNotification = true
+                                    }
+                                )
+                            }
                         }
                     )
                 }
