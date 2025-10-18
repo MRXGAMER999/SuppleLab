@@ -147,7 +147,7 @@ class ManageProductViewModel(
                 }
                 // Only update Firestore if this is an existing product
                 if (screenState.isExistingProduct) {
-                    adminRepository.updateImageThumbnail(
+                    adminRepository.updateProductThumbnail(
                         productId = screenState.id,
                         imageUrl = downloadUrl,
                         onSuccess = {
@@ -216,7 +216,7 @@ class ManageProductViewModel(
                     // Handle both existing and non-existing products
                     if (screenState.isExistingProduct) {
                         viewModelScope.launch {
-                            adminRepository.updateImageThumbnail(
+                            adminRepository.updateProductThumbnail(
                                 productId = screenState.id,
                                 imageUrl = "",
                                 onSuccess = {

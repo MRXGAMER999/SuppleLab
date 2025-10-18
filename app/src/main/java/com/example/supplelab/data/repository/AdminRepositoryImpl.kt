@@ -36,7 +36,7 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
                 val productCollection = firestore.collection("products")
                 productCollection
                     .document(product.id)
-                    .set(product)
+                    .set(product.copy(title = product.title.lowercase()))
                 onSuccess()
             } else {
                 onError("User not authenticated")
@@ -108,7 +108,7 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
                         val products = query.documents.map { document ->
                             Product(
                                 id = document.id,
-                                title = document.getString("title") ?: "",
+                                title = document.getString("title")?.uppercase() ?: "",
                                 createdAt = document.getLong("createdAt") ?: 0L,
                                 description = document.getString("description") ?: "",
                                 thumbnail = document.getString("thumbnail") ?: "",
@@ -146,7 +146,7 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
                 if (productDocument.exists()){
                     val product = Product(
                         id = productDocument.id,
-                        title = productDocument.getString("title") ?: "",
+                        title = productDocument.getString("title")?.uppercase() ?: "",
                         createdAt = productDocument.getLong("createdAt") ?: 0L,
                         description = productDocument.getString("description") ?: "",
                         thumbnail = productDocument.getString("thumbnail") ?: "",
@@ -205,7 +205,7 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
 
 
 
-    override suspend fun updateImageThumbnail(
+    override suspend fun updateProductThumbnail(
         productId: String,
         imageUrl: String,
         onSuccess: () -> Unit,
@@ -251,7 +251,7 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
                     .await()
                 if (existingProduct.exists()) {
                     productDocument.document(product.id)
-                        .set(product) //could be a problem
+                        .set(product.copy(title = product.title.lowercase()))
                     onSuccess()
                 } else {
                     onError("Err Product not found")
@@ -290,6 +290,54 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
             }
         } catch (e: Exception) {
             onError("Error updating image thumbnail: ${e.message}")
+        }
+    }
+
+    override fun searchProductByTitle(searchQuery: String): Flow<RequestState<List<Product>>> =
+        channelFlow {
+        try {
+            val userId = getCurrentUserId()
+            if (userId != null) {
+                val database = Firebase.firestore
+                val queryText = searchQuery.trim().lowercase()
+                val endText = queryText + "\uf8ff"
+                database.collection("products")
+                    .orderBy("title")
+                    .startAt(queryText)
+                    .endAt(endText)
+                    .snapshots()
+                    .collectLatest { query ->
+                        val products = query.documents.map { document ->
+                            Product(
+                                id = document.id,
+                                title = document.getString("title") ?: "",
+                                createdAt = document.getLong("createdAt") ?: 0L,
+                                description = document.getString("description") ?: "",
+                                thumbnail = document.getString("thumbnail") ?: "",
+                                category = document.getString("category") ?: "",
+                                flavors = (document.get("flavors") as? List<*>)?.mapNotNull { it as? String },
+                                weight = document.getLong("weight")?.toInt(),
+                                price = document.getDouble("price") ?: 0.0,
+                                isPopular = document.getBoolean("isPopular") ?: false,
+                                isNew = document.getBoolean("isNew") ?: false,
+                                isDiscounted = document.getBoolean("isDiscounted") ?: false,
+                            )
+                        }
+                        send(RequestState.Success(
+                            products
+                                .filter {
+                                it.title.contains(
+                                    searchQuery
+                                )
+                            }
+                                .map { it.copy(title = it.title.uppercase()) }
+                        ))
+                    }
+            } else {
+                send(RequestState.Error("Err User not authenticated"))
+            }
+        } catch (e: Exception) {
+            send(RequestState.Error(e.message ?: "Error searching products"))
         }
     }
 }
