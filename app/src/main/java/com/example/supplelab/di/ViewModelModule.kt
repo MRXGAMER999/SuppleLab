@@ -3,7 +3,7 @@ package com.example.supplelab.di
 import com.example.supplelab.presentation.componenets.sign_in.SignInViewModel
 import com.example.supplelab.presentation.screens.admin.AdminPanelViewModel
 import com.example.supplelab.presentation.screens.authentication.AuthViewModel
-import com.example.supplelab.presentation.screens.manageProduct.ManageProductViewModel
+import com.example.supplelab.presentation.screens.admin.manageProduct.ManageProductViewModel
 import com.example.supplelab.presentation.screens.profile.ProfileViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module

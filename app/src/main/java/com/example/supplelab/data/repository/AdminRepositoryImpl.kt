@@ -263,4 +263,33 @@ class AdminRepositoryImpl(private val context: Context): AdminRepository {
             onError("Error updating image thumbnail: ${e.message}")
         }
     }
+
+    override suspend fun deleteProduct(
+        productId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            val getCurrentUserId = getCurrentUserId()
+            if (getCurrentUserId != null) {
+                val database = Firebase.firestore
+                val productDocument = database.collection("products")
+                val existingProduct = productDocument
+                    .document(productId)
+                    .get()
+                    .await()
+                if (existingProduct.exists()) {
+                    productDocument.document(productId)
+                        .delete()
+                    onSuccess()
+                } else {
+                    onError("Err Product not found")
+                }
+            } else{
+                onError("User not authenticated")
+            }
+        } catch (e: Exception) {
+            onError("Error updating image thumbnail: ${e.message}")
+        }
+    }
 }

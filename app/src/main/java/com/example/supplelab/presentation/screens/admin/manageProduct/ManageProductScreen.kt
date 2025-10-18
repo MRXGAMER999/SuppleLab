@@ -1,5 +1,6 @@
-package com.example.supplelab.presentation.screens.manageProduct
+package com.example.supplelab.presentation.screens.admin.manageProduct
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -92,6 +95,8 @@ fun ManageProductScreen(
     }
 
     var showCategoriesDialog by remember { mutableStateOf(false) }
+    var dropDownMenuOpened by remember { mutableStateOf(false) }
+
     val screenState = viewModel.screenState
     val isFormValid = viewModel.isFormValid
     val thumbnailUploaderState = viewModel.thumbnailUploaderState
@@ -144,12 +149,53 @@ fun ManageProductScreen(
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.back_arrow),
-                                contentDescription = "Menu Icon",
+                                contentDescription = "Back Arrow Icon",
                                 tint = IconPrimary
+
                             )
                         }
                     },
-
+                    actions = {
+                        id.takeIf { it != null }?.let {
+                            Box{
+                                IconButton(onClick = { dropDownMenuOpened = true }) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.vertical_menu),
+                                        contentDescription = "Vertical Menu Icon",
+                                        tint = IconPrimary
+                                    )
+                                }
+                                DropdownMenu(
+                                    containerColor = Surface,
+                                    expanded = dropDownMenuOpened,
+                                    onDismissRequest = { dropDownMenuOpened = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        leadingIcon = {
+                                            Icon(
+                                                modifier = Modifier.size(14.dp),
+                                                painter = painterResource(R.drawable.delete),
+                                                contentDescription = "Delete Icon",
+                                                tint = IconPrimary
+                                            )
+                                        },
+                                        text = { Text(text = "Delete", color = TextPrimary) },
+                                        onClick = {
+                                            dropDownMenuOpened = false
+                                            viewModel.deleteProduct(
+                                                onSuccess = onNavigationIconClicked,
+                                                onError = {message ->
+                                                    notificationMessage = message
+                                                    notificationIsSuccess = false
+                                                    showNotification = true
+                                                }
+                                            )
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Surface,
                         scrolledContainerColor = Surface,
@@ -229,11 +275,11 @@ fun ManageProductScreen(
                                                 imageLoadState = state
                                                 when (state) {
                                                     is AsyncImagePainter.State.Error -> {
-                                                        android.util.Log.e("ManageProduct", "Image load error: ${state.result.throwable.message}")
-                                                        android.util.Log.e("ManageProduct", "Image URL: ${screenState.thumbnail}")
+                                                        Log.e("ManageProduct", "Image load error: ${state.result.throwable.message}")
+                                                        Log.e("ManageProduct", "Image URL: ${screenState.thumbnail}")
                                                     }
                                                     is AsyncImagePainter.State.Success -> {
-                                                        android.util.Log.d("ManageProduct", "Image loaded successfully: ${screenState.thumbnail}")
+                                                        Log.d("ManageProduct", "Image loaded successfully: ${screenState.thumbnail}")
                                                     }
                                                     else -> {}
                                                 }

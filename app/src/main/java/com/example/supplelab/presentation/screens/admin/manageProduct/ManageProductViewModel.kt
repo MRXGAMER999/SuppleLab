@@ -1,4 +1,4 @@
-package com.example.supplelab.presentation.screens.manageProduct
+package com.example.supplelab.presentation.screens.admin.manageProduct
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -239,5 +239,26 @@ class ManageProductViewModel(
                 onError = onError
             )
         }
+    }
+    fun deleteProduct(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit,
+    ) {
+        if(screenState.isExistingProduct){
+            viewModelScope.launch {
+                adminRepository.deleteProduct(
+                    productId = screenState.id,
+                    onSuccess = {
+                        deleteThumbnailFromStorage(
+                            onSuccess = {},
+                            onError = { }
+                        )
+                        onSuccess()
+                    },
+                    onError = { message -> onError(message) }
+                )
+            }
+        }
+
     }
 }
