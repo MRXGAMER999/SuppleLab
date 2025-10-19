@@ -6,6 +6,7 @@ import com.example.supplelab.ui.theme.CategoryGreen
 import com.example.supplelab.ui.theme.CategoryPurple
 import com.example.supplelab.ui.theme.CategoryRed
 import com.example.supplelab.ui.theme.CategoryYellow
+import com.google.firebase.firestore.PropertyName
 import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -22,8 +23,11 @@ data class Product (
     val flavors: List<String>? = null,
     val weight: Int? = null,
     val price: Double,
+    @get:PropertyName("isPopular")
     val isPopular: Boolean = false,
+    @get:PropertyName("isDiscounted")
     val isDiscounted: Boolean = false,
+    @get:PropertyName("isNew")
     val isNew: Boolean = false,
 )
 
