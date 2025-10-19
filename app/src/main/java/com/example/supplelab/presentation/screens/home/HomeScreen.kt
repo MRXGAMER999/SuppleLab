@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -85,6 +86,7 @@ fun HomeScreen(
         targetValue = if (drawerState.isOpened()) 20.dp else 0.dp
     )
     val viewModel: AuthViewModel = koinViewModel()
+    val customer by viewModel.customer.collectAsState()
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     var showNotification by remember { mutableStateOf(false) }
@@ -102,6 +104,7 @@ fun HomeScreen(
                 .systemBarsPadding()
         ) {
             CustomDrawer(
+                customer = customer,
                 onProfileClick = {
                     onProfileClick()
                 },

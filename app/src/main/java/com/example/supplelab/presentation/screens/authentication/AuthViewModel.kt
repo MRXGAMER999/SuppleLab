@@ -6,12 +6,20 @@ import com.example.supplelab.domain.repository.CustomerRepository
 import com.example.supplelab.util.RequestState
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AuthViewModel(
     private val customerRepository: CustomerRepository
 ): ViewModel() {
+    val customer = customerRepository.readCustomerFlow()
+        .stateIn(
+            viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = RequestState.Loading
+        )
     fun createCustomer(
         user: FirebaseUser?,
         onSuccess: (profileComplete: Boolean) -> Unit,

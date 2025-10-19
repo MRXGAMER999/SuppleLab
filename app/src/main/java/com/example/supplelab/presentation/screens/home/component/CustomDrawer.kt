@@ -1,5 +1,6 @@
 package com.example.supplelab.presentation.screens.home.component
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.presentation.profile.DrawerItem
 import com.example.supplelab.presentation.profile.DrawerItemCard
 import com.example.supplelab.ui.theme.BebasNeueFont
@@ -19,9 +21,11 @@ import com.example.supplelab.ui.theme.FontSize
 import com.example.supplelab.ui.theme.RobotoCondensedFont
 import com.example.supplelab.ui.theme.TextPrimary
 import com.example.supplelab.ui.theme.TextSecondary
+import com.example.supplelab.util.RequestState
 
 @Composable
 fun CustomDrawer(
+    customer: RequestState<Customer>,
     onProfileClick: () -> Unit,
     onContactUsClick: () -> Unit,
     onSignOutClick: () -> Unit,
@@ -66,12 +70,16 @@ fun CustomDrawer(
             Spacer(modifier = Modifier.height(12.dp))
         }
         Spacer(modifier = Modifier.weight(1f))
-        DrawerItemCard(
-            drawerItem = DrawerItem.Admin,
-            onClick = {
-                onAdminPanelClick()
+        AnimatedContent(targetState = customer) { customerState -> if (customerState.isSuccess() && customerState.getSuccessData().isAdmin) {
+                DrawerItemCard(
+                    drawerItem = DrawerItem.Admin,
+                    onClick = {
+                        onAdminPanelClick()
+                    }
+                )
             }
-        )
+
+        }
         Spacer(modifier = Modifier.height(24.dp))
     }
 }

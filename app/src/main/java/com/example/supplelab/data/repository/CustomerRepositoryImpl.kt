@@ -26,7 +26,8 @@ class CustomerRepositoryImpl: CustomerRepository {
     ) {
         try {
             if (user != null){
-                val customerCollection = Firebase.firestore.collection("customers")
+                val database = Firebase.firestore
+                val customerCollection = database.collection("customers")
                 val customerDoc = customerCollection.document(user.uid).get().await()
                 if(customerDoc.exists()){
                     // Existing user - return their profile completion status
@@ -34,14 +35,21 @@ class CustomerRepositoryImpl: CustomerRepository {
                     onSuccess(customer?.profileComplete ?: false)
                 } else {
                     // New user - create customer with profileComplete = false
-                    val customer = Customer(
-                        id = user.uid,
-                        firstName = user.displayName?.split(" ")?.firstOrNull() ?: "Unknown",
-                        lastName = user.displayName?.split(" ")?.lastOrNull() ?: "Unknown",
-                        email = user.email ?: "Unknown",
-                        profileComplete = false
+                    val customerData = hashMapOf(
+                        "id" to user.uid,
+                        "firstName" to (user.displayName?.split(" ")?.firstOrNull() ?: "Unknown"),
+                        "lastName" to (user.displayName?.split(" ")?.lastOrNull() ?: "Unknown"),
+                        "email" to (user.email ?: "Unknown"),
+                        "profileComplete" to false,
+                        "cart" to emptyList<Any>()
                     )
-                    customerCollection.document(user.uid).set(customer)
+
+                    customerCollection.document(user.uid).set(customerData).await()
+                    customerCollection.document(user.uid)
+                        .collection("privateData")
+                        .document("role")
+                        .set(mapOf("isAdmin" to false))
+                        .await()
                     onSuccess(false) // New user, profile not complete
                 }
 
@@ -66,7 +74,21 @@ class CustomerRepositoryImpl: CustomerRepository {
                         if (documentSnapshot.exists()) {
                             val customer = documentSnapshot.toObject(Customer::class.java)
                             if (customer != null) {
-                                send(RequestState.Success(customer))
+                                // Fetch isAdmin from privateData subcollection
+                                val isAdmin = try {
+                                    database.collection("customers")
+                                        .document(userId)
+                                        .collection("privateData")
+                                        .document("role")
+                                        .get()
+                                        .await()
+                                        .getBoolean("isAdmin") ?: false
+                                } catch (e: Exception) {
+                                    false
+                                }
+                                // Merge isAdmin with customer data
+                                val updatedCustomer = customer.copy(isAdmin = isAdmin)
+                                send(RequestState.Success(updatedCustomer))
                             } else {
                                 send(RequestState.Error("Error parsing customer data"))
                             }
