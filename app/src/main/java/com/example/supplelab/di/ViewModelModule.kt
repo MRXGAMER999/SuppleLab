@@ -4,6 +4,7 @@ import com.example.supplelab.presentation.componenets.sign_in.SignInViewModel
 import com.example.supplelab.presentation.screens.admin.AdminPanelViewModel
 import com.example.supplelab.presentation.screens.authentication.AuthViewModel
 import com.example.supplelab.presentation.screens.admin.manageProduct.ManageProductViewModel
+import com.example.supplelab.presentation.screens.home.products_overview.ProductOverviewViewModel
 import com.example.supplelab.presentation.screens.profile.ProfileViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -14,4 +15,5 @@ val viewModelModule = module {
     viewModel { ProfileViewModel(get()) }
     viewModel { ManageProductViewModel(get()) }
     viewModel { AdminPanelViewModel(get()) }
+    viewModel { ProductOverviewViewModel(get()) }
 }
