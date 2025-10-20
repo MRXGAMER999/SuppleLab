@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -111,23 +112,29 @@ fun DetailsScreen(
                             .padding(horizontal = 24.dp)
                             .padding(top = 12.dp)
                     ) {
-                AsyncImage(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .border(
-                            width = 1.dp,
-                            color = BorderIdle,
-                            shape = RoundedCornerShape(12.dp)
-                        ),
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(selectedProduct.thumbnail)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Product Image",
-                    contentScale = ContentScale.Crop
-                )
+                        // Memoize image request to avoid recreating on each recomposition
+                        val context = LocalContext.current
+                        val imageRequest = remember(selectedProduct.thumbnail) {
+                            ImageRequest.Builder(context)
+                                .data(selectedProduct.thumbnail)
+                                .crossfade(true)
+                                .build()
+                        }
+                        
+                        AsyncImage(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(300.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .border(
+                                    width = 1.dp,
+                                    color = BorderIdle,
+                                    shape = RoundedCornerShape(12.dp)
+                                ),
+                            model = imageRequest,
+                            contentDescription = "Product Image",
+                            contentScale = ContentScale.Crop
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),

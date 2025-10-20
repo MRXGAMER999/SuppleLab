@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,24 +62,47 @@ fun MainProductCard(
     isLarge: Boolean = false,
     onProductClick: (String) -> Unit
 ) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val animatedScale by infiniteTransition.animateFloat(
+    // Only create infinite animations for large (centered) cards to save CPU
+    val infiniteTransition = if (isLarge) rememberInfiniteTransition() else null
+    val animatedScale by infiniteTransition?.animateFloat(
         initialValue = 1.0f,
         targetValue = 1.25f,
         animationSpec = infiniteRepeatable(
             animation = tween(10000, easing = LinearEasing),
         repeatMode = RepeatMode.Reverse
         )
-    )
+    ) ?: remember { androidx.compose.runtime.mutableFloatStateOf(1.0f) }
 
-    val animatedRotation by infiniteTransition.animateFloat(
+    val animatedRotation by infiniteTransition?.animateFloat(
         initialValue = 0f,
         targetValue = 10f,
         animationSpec = infiniteRepeatable(
             animation = tween(10000, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         )
-    )
+    ) ?: remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+
+    // Memoize image request to avoid recreating on each recomposition
+    val context = LocalContext.current
+    val imageRequest = remember(product.thumbnail) {
+        ImageRequest.Builder(context)
+            .data(product.thumbnail)
+            .crossfade(true)
+            .build()
+    }
+
+    // Build stable modifier to avoid unnecessary recomposition
+    val imageModifier = remember(isLarge, animatedScale, animatedRotation) {
+        Modifier
+            .fillMaxSize()
+            .animateContentSize()
+            .then(
+                if(isLarge) Modifier
+                    .scale(animatedScale)
+                    .rotate(animatedRotation)
+                else Modifier
+            )
+    }
 
     Box(
         modifier = modifier
@@ -87,19 +111,8 @@ fun MainProductCard(
             .clickable {onProductClick(product.id)}
     ){
         AsyncImage(
-            modifier = Modifier
-                .fillMaxSize()
-                .animateContentSize()
-                .then(
-                    if(isLarge) Modifier
-                        .scale(animatedScale)
-                        .rotate(animatedRotation)
-                    else Modifier
-                ),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(product.thumbnail)
-                .crossfade(true)
-                .build(),
+            modifier = imageModifier,
+            model = imageRequest,
             contentDescription = "Product Image",
             contentScale = ContentScale.Crop
         )

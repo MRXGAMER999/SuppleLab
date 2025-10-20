@@ -265,15 +265,21 @@ fun ManageProductScreen(
                                 onSuccess = {
                                     val context = LocalContext.current
                                     var imageLoadState by remember { mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty) }
+                                    
+                                    // Memoize image request to avoid recreating on each recomposition
+                                    val imageRequest = remember(screenState.thumbnail) {
+                                        ImageRequest.Builder(context)
+                                            .data(screenState.thumbnail)
+                                            .crossfade(true)
+                                            .build()
+                                    }
+                                    
                                     Box(
                                         modifier = Modifier.fillMaxSize(),
                                         contentAlignment = Alignment.TopEnd) {
                                         AsyncImage(
                                             modifier = Modifier.fillMaxSize(),
-                                            model = ImageRequest.Builder(context)
-                                                .data(screenState.thumbnail)
-                                                .crossfade(true)
-                                                .build(),
+                                            model = imageRequest,
                                             contentDescription = "Product Thumbnail",
                                             contentScale = ContentScale.Crop,
                                             onState = { state ->

@@ -61,11 +61,11 @@ fun ProductOverviewScreen(
     products.DisplayResult(
         onLoading = { LoadingCard(modifier = Modifier.fillMaxSize()) },
 
-        onSuccess = { productList ->
+        onSuccess = { productState ->
             AnimatedContent(
-                targetState = productList.distinctBy { it.id }
-            ) { products ->
-                if (products.isNotEmpty()){
+                targetState = productState
+            ) { state ->
+                if (state.newProducts.isNotEmpty() || state.discountedProducts.isNotEmpty()){
                     Column {
                         Spacer(modifier = Modifier.height(12.dp))
                         LazyRow(
@@ -75,10 +75,7 @@ fun ProductOverviewScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             itemsIndexed(
-                                items = products
-                                    .filter { it.isNew }
-                                    .sortedBy { it.createdAt }
-                                    .take(5),
+                                items = state.newProducts,
                                 key = { index, item -> item.id}
                             ) { index , product ->
                                 val isLarge = index == centeredIndex
@@ -114,10 +111,7 @@ fun ProductOverviewScreen(
                             verticalArrangement = spacedBy(12.dp),
                         ) {
                             items(
-                                items = products
-                                    .filter { it.isDiscounted }
-                                    .sortedBy { it.createdAt }
-                                    .take(3),
+                                items = state.discountedProducts,
                                 key = { it.id}
                             ) { product ->
                                 ProductCard(

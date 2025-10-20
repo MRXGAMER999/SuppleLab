@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -48,6 +49,15 @@ fun ProductCard(
     product: Product,
     onClick: (String) -> Unit
 ) {
+    // Memoize image request to avoid recreating on each recomposition
+    val context = LocalContext.current
+    val imageRequest = remember(product.thumbnail) {
+        ImageRequest.Builder(context)
+            .data(product.thumbnail)
+            .crossfade(true)
+            .build()
+    }
+    
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -71,10 +81,7 @@ fun ProductCard(
                     color = BorderIdle,
                     shape = RoundedCornerShape(12.dp)
                 ),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(product.thumbnail)
-                .crossfade(true)
-                .build(),
+            model = imageRequest,
             contentDescription = "Product Image",
             contentScale = ContentScale.Crop
         )
