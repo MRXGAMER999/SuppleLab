@@ -93,4 +93,43 @@ class ProductRepositoryImpl: ProductRepository {
 
         }
     }
+
+    override fun readProductByIdFlow(id: String): Flow<RequestState<Product>> = channelFlow {
+        try {
+            val userId = getCurrentUserId()
+            if (userId != null) {
+                val database = Firebase.firestore
+                database.collection("products")
+                    .document(id)
+                    .snapshots()
+                    .collectLatest { document ->
+                        if(document.exists()){
+                            val product = Product(
+                                id = document.id,
+                                title = document.getString("title")?.uppercase() ?: "",
+                                createdAt = document.getLong("createdAt") ?: 0L,
+                                description = document.getString("description") ?: "",
+                                thumbnail = document.getString("thumbnail") ?: "",
+                                category = document.getString("category") ?: "",
+                                flavors = (document.get("flavors") as? List<*>)?.mapNotNull { it as? String },
+                                weight = document.getLong("weight")?.toInt(),
+                                price = document.getDouble("price") ?: 0.0,
+                                isPopular = document.getBoolean("isPopular") ?: false,
+                                isNew = document.getBoolean("isNew") ?: false,
+                                isDiscounted = document.getBoolean("isDiscounted") ?: false,
+                            )
+                            send(RequestState.Success(product))
+                        } else {
+                            send(RequestState.Error("Selected Product does not exist."))
+                        }
+                    }
+            } else {
+                send(RequestState.Error("User not authenticated"))
+            }
+
+        } catch (e: Exception) {
+            send(RequestState.Error(e.message ?: "Errow while reading the selected product"))
+
+        }
+    }
 }

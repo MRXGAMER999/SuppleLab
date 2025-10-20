@@ -40,7 +40,9 @@ import com.example.supplelab.util.DisplayResult
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ProductOverviewScreen() {
+fun ProductOverviewScreen(
+    navigateToDetails:(String) -> Unit
+) {
     val viewModel: ProductOverviewViewModel = koinViewModel()
     val products by viewModel.products.collectAsState()
     val listState = rememberLazyListState()
@@ -81,7 +83,7 @@ fun ProductOverviewScreen() {
                             ) { index , product ->
                                 val isLarge = index == centeredIndex
                                 val animatedScale by animateFloatAsState(
-                                    targetValue = if(isLarge) 1f else 0.8f,
+                                    targetValue = if(isLarge) 0.9f else 0.8f,
                                     animationSpec = tween(300)
                                 )
                                 MainProductCard(
@@ -91,7 +93,7 @@ fun ProductOverviewScreen() {
                                         .fillParentMaxWidth(0.6f),
                                     product = product,
                                     isLarge = isLarge,
-                                    onProductClick = {}
+                                    onProductClick = {navigateToDetails(it)}
                                 )
 
                             }
@@ -121,7 +123,7 @@ fun ProductOverviewScreen() {
                                 ProductCard(
                                     product = product,
                                     modifier = Modifier.fillMaxSize(),
-                                    onClick = { }
+                                    onClick = {navigateToDetails(it)}
                                 )
                             }
                         }

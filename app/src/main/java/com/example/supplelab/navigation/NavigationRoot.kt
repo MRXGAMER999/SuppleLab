@@ -10,6 +10,7 @@ import com.example.supplelab.presentation.screens.admin.manageProduct.ManageProd
 import com.example.supplelab.presentation.screens.admin.AdminPanelScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
+import com.example.supplelab.presentation.screens.home.details.DetailsScreen
 import com.example.supplelab.presentation.screens.profile.ProfileScreen
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.serialization.Serializable
@@ -26,6 +27,11 @@ object ProfileScreenKey: NavKey
 
 @Serializable
 object AdminPanelScreenKey: NavKey
+
+@Serializable
+data class DetailsScreenKey(
+    val id: String
+) : NavKey
 
 @Serializable
 data class ManageProductScreenKey(
@@ -78,6 +84,9 @@ fun NavigationRoot(
                             },
                             onAdminPanelClick = {
                                 backStack.add(AdminPanelScreenKey)
+                            },
+                            onNavigateToDetails = { productId ->
+                                backStack.add(DetailsScreenKey(id = productId))
                             }
                         )
                     }
@@ -116,6 +125,19 @@ fun NavigationRoot(
                         key = key,
                     ) {
                         ManageProductScreen(
+                            id = key.id,
+                            onNavigationIconClicked = {
+                                backStack.remove(key)
+                            }
+                        )
+                    }
+                }
+
+                is DetailsScreenKey -> {
+                    NavEntry(
+                        key = key,
+                    ) {
+                        DetailsScreen(
                             id = key.id,
                             onNavigationIconClicked = {
                                 backStack.remove(key)

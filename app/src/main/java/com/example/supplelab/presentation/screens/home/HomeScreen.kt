@@ -55,7 +55,8 @@ import org.koin.compose.koinInject
 fun HomeScreen(
     onSignOut: () -> Unit,
     onProfileClick: () -> Unit,
-    onAdminPanelClick: () -> Unit
+    onAdminPanelClick: () -> Unit,
+    onNavigateToDetails: (String) -> Unit = {}
 ) {
     val customerRepository: CustomerRepository = koinInject()
     
@@ -169,7 +170,10 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier.padding(paddingValues)
                     ) {
-                        HomeTabsNavContent(selectedIndex = selectedItemIndex)
+                        HomeTabsNavContent(
+                            selectedIndex = selectedItemIndex,
+                            onNavigateToDetails = onNavigateToDetails
+                        )
                     }
                 }
             }

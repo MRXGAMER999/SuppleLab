@@ -7,10 +7,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.unit.Constraints
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.example.supplelab.presentation.screens.home.details.DetailsScreen
 import com.example.supplelab.presentation.screens.home.products_overview.ProductOverviewScreen
 import kotlinx.serialization.Serializable
 
@@ -19,6 +21,7 @@ sealed interface HomeTabKey : NavKey
 
 @Serializable
 object HomeTab : HomeTabKey
+
 
 @Serializable
 object CartTab : HomeTabKey
@@ -30,6 +33,7 @@ object GridTab : HomeTabKey
 fun HomeTabsNavContent(
     modifier: Modifier = Modifier,
     selectedIndex: Int,
+    onNavigateToDetails: (String) -> Unit = {}
 ){
     val homeBackStack = rememberNavBackStack(HomeTab)
     val cartBackStack = rememberNavBackStack(CartTab)
@@ -45,7 +49,9 @@ fun HomeTabsNavContent(
             backStack = homeBackStack,
             entryProvider = { key ->
                 when (key) {
-                    is HomeTab -> NavEntry(key) { HomeTabRoot() }
+                    is HomeTab -> NavEntry(key) { 
+                        HomeTabRoot(onNavigateToDetails = onNavigateToDetails) 
+                    }
                     else -> error("Unknown key for HomeTab backstack: $key")
                 }
             }
@@ -87,16 +93,18 @@ fun HomeTabsNavContent(
  */
 private fun Modifier.hideComposable(): Modifier = this.layout { measurable, _ ->
     // Measure with zero constraints but don't place
-    measurable.measure(androidx.compose.ui.unit.Constraints(0, 0, 0, 0))
+    measurable.measure(Constraints(0, 0, 0, 0))
     layout(0, 0) {
         // Don't place the composable - it stays in composition but invisible
     }
 }
 
 @Composable
-private fun HomeTabRoot() {
+private fun HomeTabRoot(
+    onNavigateToDetails: (String) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        ProductOverviewScreen()
+        ProductOverviewScreen(navigateToDetails = onNavigateToDetails)
     }
 }
 
