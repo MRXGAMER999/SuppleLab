@@ -1,5 +1,6 @@
 package com.example.supplelab.domain.repository
 
+import com.example.supplelab.domain.model.CartItem
 import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.util.RequestState
 import com.google.firebase.auth.FirebaseUser
@@ -15,6 +16,11 @@ interface CustomerRepository {
     fun readCustomerFlow(): Flow<RequestState<Customer>>
     suspend fun updateCustomer(
         customer: Customer,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    )
+    suspend fun addItemToCard(
+        cartItem: CartItem,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     )

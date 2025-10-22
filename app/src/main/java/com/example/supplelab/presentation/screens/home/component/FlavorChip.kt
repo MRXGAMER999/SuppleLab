@@ -2,6 +2,7 @@ package com.example.supplelab.presentation.screens.home.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,11 +24,13 @@ import com.example.supplelab.ui.theme.TextSecondary
 @Composable
 fun FlavorChip(
     flavor: String,
-    isSelected: Boolean
+    isSelected: Boolean,
+    onClick: () -> Unit
 ){
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
+            .clickable{ onClick() }
             .background(Surface)
             .border(
                 width = 1.dp,

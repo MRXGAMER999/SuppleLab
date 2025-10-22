@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -29,7 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +50,7 @@ import com.example.supplelab.domain.model.ProductCategory
 import com.example.supplelab.domain.model.QuantityCounterSize
 import com.example.supplelab.presentation.componenets.InfoCard
 import com.example.supplelab.presentation.componenets.PrimaryButton
+import com.example.supplelab.presentation.componenets.TopNotification
 import com.example.supplelab.presentation.profile.LoadingCard
 import com.example.supplelab.presentation.screens.home.component.FlavorChip
 import com.example.supplelab.presentation.screens.home.component.QuantityCounter
@@ -72,14 +76,22 @@ fun DetailsScreen(
     val viewModel : DetailsScreenViewModel = koinViewModel()
     val product by viewModel.product.collectAsState()
     val quantity = viewModel.quantity
+    val selectedFlavor = viewModel.selectedFlavor
     
+    var showNotification by remember { mutableStateOf(false) }
+    var notificationMessage by remember { mutableStateOf("") }
+    var isSuccess by remember { mutableStateOf(false) }
+
     LaunchedEffect(id) {
         viewModel.loadProduct(id)
     }
     
-    Scaffold(
-        containerColor = Surface,
-        topBar = {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Scaffold(
+            containerColor = Surface,
+            topBar = {
             TopAppBar(
                 title = {
                     Text(
@@ -227,7 +239,8 @@ fun DetailsScreen(
                                 selectedProduct.flavors.forEach { flavor ->
                                     FlavorChip(
                                         flavor = flavor,
-                                        isSelected = true
+                                        isSelected = selectedFlavor == flavor,
+                                        onClick = {viewModel.updateFlavor(flavor)}
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                 }
@@ -238,7 +251,22 @@ fun DetailsScreen(
                         PrimaryButton(
                             icon = R.drawable.shopping_cart,
                             text = "Add to Cart",
-                            onClick = {}
+                            enabled = if (selectedProduct.flavors?.isNotEmpty() == true) selectedFlavor != null
+                            else true,
+                            onClick = {
+                                viewModel.addItemToCard(
+                                    onSuccess = {
+                                        isSuccess = true
+                                        notificationMessage = "Item added to cart successfully"
+                                        showNotification = true
+                                    },
+                                    onError = { message ->
+                                        isSuccess = false
+                                        notificationMessage = message
+                                        showNotification = true
+                                    }
+                                )
+                            }
                         )
                     }
                 }
@@ -250,6 +278,16 @@ fun DetailsScreen(
                     subtitle = message
                 )
             }
+        )
+    }
+
+        // Top notification banner
+        TopNotification(
+            visible = showNotification,
+            message = notificationMessage,
+            isSuccess = isSuccess,
+            onDismiss = { showNotification = false },
+            modifier = Modifier.align(Alignment.TopCenter)
         )
     }
 

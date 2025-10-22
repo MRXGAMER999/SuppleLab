@@ -17,5 +17,5 @@ val viewModelModule = module {
     viewModel { ManageProductViewModel(get()) }
     viewModel { AdminPanelViewModel(get()) }
     viewModel { ProductOverviewViewModel(get()) }
-    viewModel { DetailsScreenViewModel(get()) }
+    viewModel { DetailsScreenViewModel(get(), get()) }
 }

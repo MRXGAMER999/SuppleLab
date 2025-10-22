@@ -1,5 +1,6 @@
 package com.example.supplelab.data.repository
 
+import com.example.supplelab.domain.model.CartItem
 import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.domain.repository.CustomerRepository
 import com.example.supplelab.util.RequestState
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.firestore.SetOptions
 
 
 class CustomerRepositoryImpl: CustomerRepository {
@@ -141,6 +143,43 @@ class CustomerRepositoryImpl: CustomerRepository {
 
         } catch (e: Exception) {
             onError(e.message ?: "Error updating customer")
+        }
+    }
+
+    override suspend fun addItemToCard(
+        cartItem: CartItem,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            val currentUserId = getCurrentUserId()
+            if (currentUserId != null){
+                val dataBase = Firebase.firestore
+                val customerCollection = dataBase.collection("customers")
+                val existingCustomer = customerCollection
+                    .document(currentUserId)
+                    .get()
+                    .await()
+                if(existingCustomer.exists()){
+                    // Safely map the snapshot to Customer and get the existing cart
+                    val existing = existingCustomer.toObject(Customer::class.java)
+                    val existingCart: List<CartItem> = existing?.cart ?: emptyList()
+                    val updatedCart = existingCart + cartItem
+                    customerCollection.document(currentUserId)
+                        .set(
+                            mapOf("cart" to updatedCart),
+                            SetOptions.merge()
+                        )
+                        .await()
+                    onSuccess()
+                } else {
+                    onError("Customer not found")
+                }
+            } else {
+                onError("User is not available")
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Error adding item to cart")
         }
     }
 
