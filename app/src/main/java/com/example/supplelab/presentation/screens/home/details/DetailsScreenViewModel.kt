@@ -1,5 +1,9 @@
 package com.example.supplelab.presentation.screens.home.details
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.supplelab.domain.model.Product
@@ -40,4 +44,13 @@ class DetailsScreenViewModel(
         // Reset to loading state
         _product.value = RequestState.Loading
     }
+
+    var quantity by mutableIntStateOf(1)
+        private set
+
+    fun updateQuantity(value: Int) {
+        quantity = value
+
+    }
+
 }

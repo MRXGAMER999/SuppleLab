@@ -1,9 +1,11 @@
 package com.example.supplelab.presentation.screens.home.details
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,19 +37,26 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.supplelab.R
 import com.example.supplelab.domain.model.ProductCategory
+import com.example.supplelab.domain.model.QuantityCounterSize
 import com.example.supplelab.presentation.componenets.InfoCard
+import com.example.supplelab.presentation.componenets.PrimaryButton
 import com.example.supplelab.presentation.profile.LoadingCard
+import com.example.supplelab.presentation.screens.home.component.FlavorChip
+import com.example.supplelab.presentation.screens.home.component.QuantityCounter
 import com.example.supplelab.ui.theme.BebasNeueFont
 import com.example.supplelab.ui.theme.BorderIdle
 import com.example.supplelab.ui.theme.FontSize
 import com.example.supplelab.ui.theme.IconPrimary
+import com.example.supplelab.ui.theme.RobotoCondensedFont
 import com.example.supplelab.ui.theme.Surface
+import com.example.supplelab.ui.theme.SurfaceLighter
 import com.example.supplelab.ui.theme.TextPrimary
 import com.example.supplelab.ui.theme.TextSecondary
 import com.example.supplelab.util.DisplayResult
@@ -62,6 +71,7 @@ fun DetailsScreen(
 ){
     val viewModel : DetailsScreenViewModel = koinViewModel()
     val product by viewModel.product.collectAsState()
+    val quantity = viewModel.quantity
     
     LaunchedEffect(id) {
         viewModel.loadProduct(id)
@@ -89,6 +99,19 @@ fun DetailsScreen(
                             tint = IconPrimary
                         )
                     }
+                },
+                actions = {
+                    QuantityCounter(
+                        size = QuantityCounterSize.Large,
+                        value = quantity.toString(),
+                        onDecrement = {
+                            if(quantity > 1) viewModel.updateQuantity(quantity - 1)
+                        },
+                        onIncrement = {
+                            if(quantity < 10) viewModel.updateQuantity(quantity + 1)
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Surface,
@@ -158,7 +181,7 @@ fun DetailsScreen(
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
                                     text = "${selectedProduct.weight}g",
-                                    fontSize = FontSize.EXTRA_SMALL,
+                                    fontSize = FontSize.REGULAR,
                                     color = TextPrimary,
                                 )
                             }
@@ -166,14 +189,57 @@ fun DetailsScreen(
                     }
                     Text(
                         text = "$${selectedProduct.price}",
-                        fontSize = FontSize.EXTRA_REGULAR,
+                        fontSize = FontSize.MEDIUM,
                         color = TextSecondary,
                         fontWeight = FontWeight.Medium
                     )
                 }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = selectedProduct.title,
+                            fontSize = FontSize.MEDIUM,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = RobotoCondensedFont(),
+                            color = TextPrimary,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = selectedProduct.description,
+                            fontSize = FontSize.REGULAR,
+                            lineHeight = FontSize.REGULAR * 1.3,
+                            color = TextPrimary,
+                        )
                     }
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .background(if (selectedProduct.flavors?.isNotEmpty() == true) SurfaceLighter
+                            else Surface)
+                            .padding(24.dp)
+                    ) {
+                        if(selectedProduct.flavors?.isNotEmpty() == true){
+                            FlowRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                selectedProduct.flavors.forEach { flavor ->
+                                    FlavorChip(
+                                        flavor = flavor,
+                                        isSelected = true
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(24.dp))
 
+                        }
+                        PrimaryButton(
+                            icon = R.drawable.shopping_cart,
+                            text = "Add to Cart",
+                            onClick = {}
+                        )
                     }
                 }
             },
