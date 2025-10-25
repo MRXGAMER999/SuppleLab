@@ -162,6 +162,7 @@ fun HomeScreen(
                     },
                     bottomBar = {
                         HomeBottomBar(
+                            customer = customer,
                             selectedItemIndex = selectedItemIndex,
                             onSelectedItemIndexChange = { selectedItemIndex = it }
                         )

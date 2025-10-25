@@ -183,6 +183,83 @@ class CustomerRepositoryImpl: CustomerRepository {
         }
     }
 
+    override suspend fun updateCartItemQuantity(
+        id: String,
+        quantity: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            val currentUserId = getCurrentUserId()
+            if (currentUserId != null){
+                val dataBase = Firebase.firestore
+                val customerCollection = dataBase.collection("customers")
+                val existingCustomer = customerCollection
+                    .document(currentUserId)
+                    .get()
+                    .await()
+                if(existingCustomer.exists()){
+                    // Safely map the snapshot to Customer and get the existing cart
+                    val existing = existingCustomer.toObject(Customer::class.java)
+                    val existingCart: List<CartItem> = existing?.cart ?: emptyList()
+                    val updatedCart = existingCart.map { cartItem ->
+                        if (cartItem.id == id) {
+                            cartItem.copy(quantity = quantity)
+                        } else {
+                            cartItem
+                        }
+                    }
+                    customerCollection.document(currentUserId)
+                        .update(mapOf("cart" to updatedCart))
+                        .await()
+                    onSuccess()
+                } else {
+                    onError("Customer not found")
+                }
+            } else {
+                onError("User is not available")
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Error adding item to cart")
+        }
+    }
+
+    override suspend fun removeItemFromCart(
+        id: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            val currentUserId = getCurrentUserId()
+            if (currentUserId != null){
+                val dataBase = Firebase.firestore
+                val customerCollection = dataBase.collection("customers")
+                val existingCustomer = customerCollection
+                    .document(currentUserId)
+                    .get()
+                    .await()
+                if(existingCustomer.exists()){
+                    // Safely map the snapshot to Customer and get the existing cart
+                    val existing = existingCustomer.toObject(Customer::class.java)
+                    val existingCart: List<CartItem> = existing?.cart ?: emptyList()
+                    val updatedCart = existingCart.filterNot { cartItem ->
+                        cartItem.id == id
+                    }
+                    customerCollection.document(currentUserId)
+                        .update(mapOf("cart" to updatedCart))
+                        .await()
+                    onSuccess()
+                } else {
+                    onError("Customer not found")
+                }
+            } else {
+                onError("User is not available")
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Error adding item to cart")
+        }
+    }
+
 
     override suspend fun signOut(): RequestState<Unit> {
         return try {

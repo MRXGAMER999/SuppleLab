@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -33,12 +35,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.R
+import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.ui.theme.IconPrimary
 import com.example.supplelab.ui.theme.IconSecondary
 import com.example.supplelab.ui.theme.SurfaceDarker
 import com.example.supplelab.ui.theme.SurfaceLighter
 import com.example.supplelab.util.Constants.ALPHA_DISABLED
 import com.example.supplelab.util.Constants.ALPHA_HALF
+import com.example.supplelab.util.RequestState
 
 data class BottomNavItem(
     val title: String,
@@ -53,6 +57,7 @@ data class BottomNavItem(
 fun HomeBottomBar(
     selectedItemIndex: Int,
     onSelectedItemIndexChange: (Int) -> Unit,
+    customer: RequestState<Customer>
 ){
     val items = listOf(
         BottomNavItem(
@@ -100,15 +105,29 @@ fun HomeBottomBar(
                     onSelectedItemIndexChange(index)
                 },
                 icon = {
-                    BadgedBox(
-                        badge = { if (item.hasNews) Badge() }
-                    ) {
-                        Icon(
-                            painter = item.icon,
-                            contentDescription = item.title,
-                            tint = animatedTint
-                        )
-                    }
+                        Box(contentAlignment = Alignment.TopEnd){
+                            Icon(
+                                painter = item.icon,
+                                contentDescription = item.title,
+                                tint = animatedTint
+                            )
+                            if (index == 1){
+                                AnimatedContent(
+                                    targetState =  customer
+                                ) { customerState ->
+                                    if (customerState.isSuccess() && customerState.getSuccessData().cart.isNotEmpty()){
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .offset(x = 4.dp, y = (-4).dp)
+                                                .clip(CircleShape)
+                                                .background(IconSecondary)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = item.selectedIconColor,
@@ -120,22 +139,22 @@ fun HomeBottomBar(
     }
 }
 
-@Preview(showBackground = true, name = "Bottom Bar Light")
-@Composable
-private fun HomeBottomBarPreview() {
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(SurfaceLighter),
-            contentAlignment = Alignment.BottomCenter
-        ) {
-            var selectedIndex by remember { mutableStateOf(0) }
-
-            HomeBottomBar(
-                selectedItemIndex = selectedIndex,
-                onSelectedItemIndexChange = { selectedIndex = it }
-            )
-        }
-
-}
+//@Preview(showBackground = true, name = "Bottom Bar Light")
+//@Composable
+//private fun HomeBottomBarPreview() {
+//
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(SurfaceLighter),
+//            contentAlignment = Alignment.BottomCenter
+//        ) {
+//            var selectedIndex by remember { mutableStateOf(0) }
+//
+//            HomeBottomBar(
+//                selectedItemIndex = selectedIndex,
+//                onSelectedItemIndexChange = { selectedIndex = it }
+//            )
+//        }
+//
+//}

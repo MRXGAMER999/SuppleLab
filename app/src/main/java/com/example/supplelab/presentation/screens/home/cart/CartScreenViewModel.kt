@@ -1,6 +1,7 @@
 package com.example.supplelab.presentation.screens.home.cart
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.supplelab.domain.model.CartItem
 import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.domain.model.Product
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 
 class CartScreenViewModel (
     private val customerRepository: CustomerRepository,
@@ -68,6 +70,34 @@ class CartScreenViewModel (
                 RequestState.Loading
             }
 
+        }
+    }
+    fun updateCartItemQuantity(
+        id: String,
+        quantity: Int,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            customerRepository.updateCartItemQuantity(
+                id = id,
+                quantity = quantity,
+                onSuccess = onSuccess,
+                onError = onError
+            )
+        }
+    }
+    fun removeItemFromCart(
+        id: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            customerRepository.removeItemFromCart(
+                id = id,
+                onSuccess = onSuccess,
+                onError = onError
+            )
         }
     }
 }
