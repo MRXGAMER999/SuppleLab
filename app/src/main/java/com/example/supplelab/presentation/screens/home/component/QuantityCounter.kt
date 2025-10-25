@@ -24,15 +24,17 @@ import com.example.supplelab.ui.theme.IconPrimary
 import com.example.supplelab.ui.theme.SurfaceBrand
 import com.example.supplelab.ui.theme.SurfaceLighter
 import com.example.supplelab.ui.theme.TextPrimary
+import com.example.supplelab.util.Constants.MAX_QUANTITY
+import com.example.supplelab.util.Constants.MIN_QUANTITY
 
 
 @Composable
 fun QuantityCounter(
     modifier: Modifier = Modifier,
     size: QuantityCounterSize,
-    value: String,
-    onIncrement: () -> Unit,
-    onDecrement: () -> Unit,
+    value: Int,
+    onIncrement: (Int) -> Unit,
+    onDecrement: (Int) -> Unit,
 ) {
     Row(
         modifier = modifier,
@@ -43,7 +45,9 @@ fun QuantityCounter(
             modifier = Modifier
                 .clip(RoundedCornerShape(6.dp))
                 .background(SurfaceBrand)
-                .clickable { onDecrement() }
+                .clickable {
+                    if (value > MIN_QUANTITY) onDecrement(value - 1)
+                }
                 .padding(size.padding),
             contentAlignment = Alignment.Center
         ){
@@ -70,7 +74,7 @@ fun QuantityCounter(
             modifier = Modifier
                 .clip(RoundedCornerShape(6.dp))
                 .background(SurfaceBrand)
-                .clickable { onIncrement() }
+                .clickable { if(value < MAX_QUANTITY) onIncrement(value + 1) }
                 .padding(size.padding),
             contentAlignment = Alignment.Center
         ){

@@ -115,13 +115,9 @@ fun DetailsScreen(
                 actions = {
                     QuantityCounter(
                         size = QuantityCounterSize.Large,
-                        value = quantity.toString(),
-                        onDecrement = {
-                            if(quantity > 1) viewModel.updateQuantity(quantity - 1)
-                        },
-                        onIncrement = {
-                            if(quantity < 10) viewModel.updateQuantity(quantity + 1)
-                        }
+                        value = quantity,
+                        onDecrement = viewModel::updateQuantity,
+                        onIncrement = viewModel::updateQuantity
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                 },

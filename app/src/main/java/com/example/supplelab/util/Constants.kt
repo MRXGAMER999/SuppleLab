@@ -8,5 +8,8 @@ object Constants {
     const val AlPHA_TEN_PERSENT = 0.1F
     const val ALPHA_ZERO = 0f
 
+    const val MAX_QUANTITY = 10
+    const val MIN_QUANTITY = 1
+
 
 }
