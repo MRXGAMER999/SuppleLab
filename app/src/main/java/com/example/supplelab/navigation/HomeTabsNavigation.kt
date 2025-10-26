@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,17 +32,20 @@ object HomeTab : HomeTabKey
 object CartTab : HomeTabKey
 
 @Serializable
-object GridTab : HomeTabKey
+object Categories : HomeTabKey
+
+
 
 @Composable
 fun HomeTabsNavContent(
     modifier: Modifier = Modifier,
     selectedIndex: Int,
-    onNavigateToDetails: (String) -> Unit = {}
+    onNavigateToDetails: (String) -> Unit = {},
+    navigateToCategorySearch: (String) -> Unit = {}
 ){
     val homeBackStack = rememberNavBackStack(HomeTab)
     val cartBackStack = rememberNavBackStack(CartTab)
-    val gridBackStack = rememberNavBackStack(GridTab)
+    val categoriesBackStack = rememberNavBackStack(Categories)
 
     // Animated content with slide and fade transitions
     AnimatedContent(
@@ -97,10 +99,10 @@ fun HomeTabsNavContent(
             2 -> {
                 NavDisplay(
                     modifier = Modifier.fillMaxSize(),
-                    backStack = gridBackStack,
+                    backStack = categoriesBackStack,
                     entryProvider = { key ->
                         when (key) {
-                            is GridTab -> NavEntry(key) { GridTabRoot() }
+                            is Categories -> NavEntry(key) { CategoriesTabRoot(navigateToCategorySearch = navigateToCategorySearch) }
                             else -> error("Unknown key for GridTab backstack: $key")
                         }
                     }
@@ -127,8 +129,12 @@ private fun CartTabRoot() {
 }
 
 @Composable
-private fun GridTabRoot() {
+private fun CategoriesTabRoot(
+    navigateToCategorySearch: (String) -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CategoryScreen()
+        CategoryScreen(
+            navigateToCategorySearch = navigateToCategorySearch
+        )
     }
 }

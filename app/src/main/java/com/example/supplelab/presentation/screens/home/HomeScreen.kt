@@ -56,7 +56,8 @@ fun HomeScreen(
     onSignOut: () -> Unit,
     onProfileClick: () -> Unit,
     onAdminPanelClick: () -> Unit,
-    onNavigateToDetails: (String) -> Unit = {}
+    onNavigateToDetails: (String) -> Unit = {},
+    onNavigateToCategory: (String) -> Unit = {}
 ) {
     val customerRepository: CustomerRepository = koinInject()
     
@@ -173,7 +174,8 @@ fun HomeScreen(
                     ) {
                         HomeTabsNavContent(
                             selectedIndex = selectedItemIndex,
-                            onNavigateToDetails = onNavigateToDetails
+                            onNavigateToDetails = onNavigateToDetails,
+                            navigateToCategorySearch = onNavigateToCategory
                         )
                     }
                 }

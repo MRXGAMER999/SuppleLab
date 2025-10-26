@@ -6,10 +6,12 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.example.supplelab.domain.model.ProductCategory
 import com.example.supplelab.presentation.screens.admin.manageProduct.ManageProductScreen
 import com.example.supplelab.presentation.screens.admin.AdminPanelScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
+import com.example.supplelab.presentation.screens.home.category.category_search.CategorySearchScreen
 import com.example.supplelab.presentation.screens.home.details.DetailsScreen
 import com.example.supplelab.presentation.screens.profile.ProfileScreen
 import com.google.firebase.auth.FirebaseAuth
@@ -31,6 +33,11 @@ object AdminPanelScreenKey: NavKey
 @Serializable
 data class DetailsScreenKey(
     val id: String
+) : NavKey
+
+@Serializable
+data class CategorySearchScreenKey(
+    val category: String
 ) : NavKey
 
 @Serializable
@@ -87,6 +94,9 @@ fun NavigationRoot(
                             },
                             onNavigateToDetails = { productId ->
                                 backStack.add(DetailsScreenKey(id = productId))
+                            },
+                            onNavigateToCategory = { category ->
+                                backStack.add(CategorySearchScreenKey(category = category))
                             }
                         )
                     }
@@ -139,6 +149,18 @@ fun NavigationRoot(
                     ) {
                         DetailsScreen(
                             id = key.id,
+                            onNavigationIconClicked = {
+                                backStack.remove(key)
+                            }
+                        )
+                    }
+                }
+                is CategorySearchScreenKey -> {
+                    NavEntry(
+                        key = key,
+                    ) {
+                        CategorySearchScreen(
+                            category = ProductCategory.valueOf(key.category),
                             onNavigationIconClicked = {
                                 backStack.remove(key)
                             }

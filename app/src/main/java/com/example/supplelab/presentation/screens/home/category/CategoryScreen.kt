@@ -11,7 +11,9 @@ import com.example.supplelab.domain.model.ProductCategory
 import com.example.supplelab.presentation.screens.home.component.CategoryCard
 
 @Composable
-fun CategoryScreen(){
+fun CategoryScreen(
+    navigateToCategorySearch: (String) -> Unit
+){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -21,7 +23,7 @@ fun CategoryScreen(){
         ProductCategory.entries.forEach { category ->
             CategoryCard(
                 category = category,
-                onClick = { /* TODO: Handle category click */ }
+                onClick = { navigateToCategorySearch(category.name) }
             )
         }
     }
