@@ -18,6 +18,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.example.supplelab.presentation.screens.home.cart.CartScreen
+import com.example.supplelab.presentation.screens.home.category.CategoryScreen
 import com.example.supplelab.presentation.screens.home.products_overview.ProductOverviewScreen
 import kotlinx.serialization.Serializable
 
@@ -128,6 +129,6 @@ private fun CartTabRoot() {
 @Composable
 private fun GridTabRoot() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Grid tab")
+        CategoryScreen()
     }
 }

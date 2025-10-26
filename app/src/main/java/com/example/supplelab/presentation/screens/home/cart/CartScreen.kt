@@ -60,11 +60,9 @@ fun CartScreen(){
                                         id = pair.first.id,
                                         quantity = quantity,
                                         onSuccess = {
-                                            showNotification = true
-                                            notificationMessage = "Cart updated successfully"
-                                            isSuccess = true
+
                                         },
-                                        onError = {message ->
+                                        onError = { message ->
                                             showNotification = true
                                             notificationMessage = message
                                             isSuccess = false
@@ -79,7 +77,7 @@ fun CartScreen(){
                                         onSuccess = {
 
                                         },
-                                        onError = {message ->
+                                        onError = { message ->
                                             showNotification = true
                                             notificationMessage = message
                                             isSuccess = false
