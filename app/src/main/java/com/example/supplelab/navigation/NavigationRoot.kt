@@ -163,6 +163,9 @@ fun NavigationRoot(
                             category = ProductCategory.valueOf(key.category),
                             onNavigationIconClicked = {
                                 backStack.remove(key)
+                            },
+                            onNavigateToDetails = { productId ->
+                                backStack.add(DetailsScreenKey(id = productId))
                             }
                         )
                     }

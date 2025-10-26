@@ -2,6 +2,9 @@ package com.example.supplelab.presentation.screens.admin
 
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -198,7 +201,8 @@ fun AdminPanelScreen(
                     title = "Oops!",
                     subtitle = message,
                 )
-            }
+            },
+            transitionSpec = fadeIn() togetherWith fadeOut()
         )
     }
 }

@@ -73,7 +73,8 @@ fun DetailsScreen(
     onNavigationIconClicked:() -> Unit,
     id: String
 ){
-    val viewModel : DetailsScreenViewModel = koinViewModel()
+    // Use product ID as key to ensure ViewModel is recreated for different products
+    val viewModel : DetailsScreenViewModel = koinViewModel(key = id)
     val product by viewModel.product.collectAsState()
     val quantity = viewModel.quantity
     val selectedFlavor = viewModel.selectedFlavor

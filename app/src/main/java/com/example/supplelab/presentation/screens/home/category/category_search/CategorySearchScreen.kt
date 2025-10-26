@@ -1,7 +1,9 @@
 package com.example.supplelab.presentation.screens.home.category.category_search
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -42,10 +46,13 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CategorySearchScreen(
     onNavigationIconClicked: () -> Unit,
+    onNavigateToDetails: (String) -> Unit,
     category: ProductCategory
 ){
     val viewModel : CategorySearchViewModel = koinViewModel()
-    val products by viewModel.products.collectAsState()
+    val filteredProducts by viewModel.filteredProducts.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    var searchBarVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(category) {
         viewModel.loadProductsByCategory(category)
@@ -54,47 +61,47 @@ fun CategorySearchScreen(
         containerColor = Surface,
         topBar = {
             AnimatedContent(
-                targetState = false,
+                targetState = searchBarVisible,
                 label = "Search Bar Animation"
             ) { visible ->
                 if (visible){
-//                    SearchBar(
-//                        modifier = Modifier
-//                            .padding(horizontal = 12.dp)
-//                            .fillMaxWidth(),
-//                        query = searchQuery,
-//                        onQueryChange = viewModel::updateSearchQuery,
-//                        onSearch = {},
-//                        active = false,
-//                        onActiveChange = {},
-//                        placeholder = {
-//                            Text(
-//                                text = "Search Products...",
-//                                fontSize = FontSize.REGULAR,
-//                                color = TextPrimary
-//                            )
-//                        },
-//                        trailingIcon = {
-//                            IconButton(onClick = {
-//                                if (searchQuery.isNotEmpty()){
-//                                    viewModel.updateSearchQuery("")
-//                                } else{
-//                                    searchBarVisible = false
-//                                }
-//                            }) {
-//                                Icon(
-//                                    painter = painterResource(R.drawable.close),
-//                                    contentDescription = "Close Icon",
-//                                    tint = IconPrimary
-//                                )
-//                            }
-//                        },
-//                        colors = SearchBarDefaults.colors(
-//                            containerColor = SurfaceLighter,
-//                            dividerColor = BorderIdle
-//                        ),
-//                        content = {}
-//                    )
+                    SearchBar(
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp)
+                            .fillMaxWidth(),
+                        query = searchQuery,
+                        onQueryChange = viewModel::updateSearchQuery,
+                        onSearch = {},
+                        active = false,
+                        onActiveChange = {},
+                        placeholder = {
+                            Text(
+                                text = "Search Products...",
+                                fontSize = FontSize.REGULAR,
+                                color = TextPrimary
+                            )
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                if (searchQuery.isNotEmpty()){
+                                    viewModel.updateSearchQuery("")
+                                } else{
+                                    searchBarVisible = false
+                                }
+                            }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.close),
+                                    contentDescription = "Close Icon",
+                                    tint = IconPrimary
+                                )
+                            }
+                        },
+                        colors = SearchBarDefaults.colors(
+                            containerColor = SurfaceLighter,
+                            dividerColor = BorderIdle
+                        ),
+                        content = {}
+                    )
                 } else {
                     TopAppBar(
                         title = {
@@ -118,7 +125,7 @@ fun CategorySearchScreen(
                         },
                         actions = {
                             IconButton(onClick = {
-                                //searchBarVisible = true
+                                searchBarVisible = true
                             }) {
                                 Icon(
                                     painter = painterResource(R.drawable.search),
@@ -139,7 +146,7 @@ fun CategorySearchScreen(
             }
         }
     ){ paddingValues ->
-        products.DisplayResult(
+        filteredProducts.DisplayResult(
             onLoading = { LoadingCard(modifier = Modifier.fillMaxSize()) },
             onSuccess = { categoryProducts ->
                 if (categoryProducts.isNotEmpty()){
@@ -157,7 +164,7 @@ fun CategorySearchScreen(
                             ProductCard(
                                 product = product,
                                 onClick = { productId ->
-                                    // TODO: Navigate to product details
+                                    onNavigateToDetails(productId)
                                 }
                             )
 
@@ -171,13 +178,14 @@ fun CategorySearchScreen(
                     )
                 }
             },
-            onError = { Message ->
+            onError = { message ->
                 InfoCard(
                     icon = R.drawable.cat,
                     title = "Oops!",
-                    subtitle = Message
+                    subtitle = message
                 )
-            }
+            },
+            transitionSpec = fadeIn() togetherWith fadeOut()
         )
     }
 }

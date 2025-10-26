@@ -66,6 +66,7 @@ class CustomerRepositoryImpl: CustomerRepository {
 
     override fun readCustomerFlow(): Flow<RequestState<Customer>> = channelFlow {
         try {
+            // Get userId fresh each time to handle sign-out/sign-in scenarios
             val userId = getCurrentUserId()
             if (userId != null) {
                 val database = Firebase.firestore
@@ -73,6 +74,14 @@ class CustomerRepositoryImpl: CustomerRepository {
                     .document(userId)
                     .snapshots()
                     .collectLatest { documentSnapshot ->
+                        // Re-check userId to ensure it hasn't changed
+                        val currentUserId = getCurrentUserId()
+                        if (currentUserId != userId) {
+                            // User changed, stop this flow
+                            send(RequestState.Error("User session changed"))
+                            return@collectLatest
+                        }
+                        
                         if (documentSnapshot.exists()) {
                             val customer = documentSnapshot.toObject(Customer::class.java)
                             if (customer != null) {

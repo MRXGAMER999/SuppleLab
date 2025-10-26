@@ -17,7 +17,7 @@ class AuthViewModel(
     val customer = customerRepository.readCustomerFlow()
         .stateIn(
             viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Eagerly,
             initialValue = RequestState.Loading
         )
     fun createCustomer(

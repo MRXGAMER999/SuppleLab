@@ -87,7 +87,10 @@ fun HomeScreen(
     val animatedRadius by animateDpAsState(
         targetValue = if (drawerState.isOpened()) 20.dp else 0.dp
     )
-    val viewModel: AuthViewModel = koinViewModel()
+    
+    // Use current user ID as key to ensure ViewModel is recreated for different users
+    val currentUserId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "no_user"
+    val viewModel: AuthViewModel = koinViewModel(key = currentUserId)
     val customer by viewModel.customer.collectAsState()
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()

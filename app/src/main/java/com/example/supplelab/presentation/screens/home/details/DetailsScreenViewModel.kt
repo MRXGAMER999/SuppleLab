@@ -57,6 +57,10 @@ class DetailsScreenViewModel(
         
         // Reset to loading state
         _product.value = RequestState.Loading
+        
+        // Reset quantity and flavor to default values
+        quantity = 1
+        selectedFlavor = null
     }
 
 

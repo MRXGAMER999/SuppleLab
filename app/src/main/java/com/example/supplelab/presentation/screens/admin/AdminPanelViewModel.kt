@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -36,10 +37,17 @@ class AdminPanelViewModel(
         searchQuery
             .debounce(500)
             .flatMapLatest { query ->
-                if (query.isBlank()) {
-                    products
-                } else {
-                    adminRepository.searchProductByTitle(query)
+                if(query.isBlank()) products
+                else {
+                    if (products.value.isSuccess()){
+                        flowOf(
+                            RequestState.Success(
+                                products.value.getSuccessData().filter {
+                                    it.title.lowercase().contains(query.lowercase())
+                                }
+                            )
+                        )
+                    } else products
                 }
             }
             .stateIn(
