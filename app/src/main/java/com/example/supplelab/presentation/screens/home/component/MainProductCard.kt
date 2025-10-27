@@ -140,7 +140,7 @@ fun MainProductCard(
                 text = product.title,
                 fontSize = FontSize.EXTRA_MEDIUM,
                 color = TextWhite,
-                fontFamily = RobotoCondensedFont(),
+                fontFamily = RobotoCondensedFont,
                 fontWeight = FontWeight.Medium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis

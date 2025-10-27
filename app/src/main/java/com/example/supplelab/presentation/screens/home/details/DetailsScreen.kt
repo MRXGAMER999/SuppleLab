@@ -97,7 +97,7 @@ fun DetailsScreen(
                 title = {
                     Text(
                         text = "Details",
-                        fontFamily = BebasNeueFont(),
+                        fontFamily = BebasNeueFont,
                         fontSize = FontSize.LARGE,
                         color = TextPrimary
                     )
@@ -208,7 +208,7 @@ fun DetailsScreen(
                             text = selectedProduct.title,
                             fontSize = FontSize.MEDIUM,
                             fontWeight = FontWeight.Medium,
-                            fontFamily = RobotoCondensedFont(),
+                            fontFamily = RobotoCondensedFont,
                             color = TextPrimary,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis

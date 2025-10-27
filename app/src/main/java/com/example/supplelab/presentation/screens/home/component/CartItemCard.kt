@@ -89,7 +89,7 @@ fun CartItemCard(
                 Text(
                     modifier = Modifier.weight(1f),
                     text = product.title,
-                    fontFamily = RobotoCondensedFont(),
+                    fontFamily = RobotoCondensedFont,
                     fontSize = FontSize.MEDIUM,
                     fontWeight = FontWeight.Medium,
                     color = TextPrimary,

@@ -31,7 +31,7 @@ fun HomeTopBar(
             ) { selectedIndex ->
                 Text(
                     text = titles.getOrElse(selectedIndex) { "Home" },
-                    fontFamily = BebasNeueFont(),
+                    fontFamily = BebasNeueFont,
                     fontSize = FontSize.LARGE,
                     color = TextPrimary
                 )

@@ -43,7 +43,7 @@ fun CustomDrawer(
             text = "SUPPLE LAB",
             textAlign = TextAlign.Center,
             color = TextSecondary,
-            fontFamily = BebasNeueFont(),
+            fontFamily = BebasNeueFont,
             fontSize = FontSize.EXTRA_LARGE
         )
         Text(
@@ -51,7 +51,7 @@ fun CustomDrawer(
             text = "Healthy Life Style",
             textAlign = TextAlign.Center,
             color = TextPrimary,
-            fontFamily = RobotoCondensedFont(),
+            fontFamily = RobotoCondensedFont,
             fontSize = FontSize.REGULAR
         )
         Spacer(modifier = Modifier.height(50.dp))

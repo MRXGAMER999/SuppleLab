@@ -143,7 +143,7 @@ fun ManageProductScreen(
                         Text(
                             text = if (id == null) "New Product"
                             else "Edit Product",
-                            fontFamily = BebasNeueFont(),
+                            fontFamily = BebasNeueFont,
                             fontSize = FontSize.LARGE,
                             color = TextPrimary
                         )

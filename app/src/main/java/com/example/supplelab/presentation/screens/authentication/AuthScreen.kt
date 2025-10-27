@@ -139,7 +139,7 @@ fun AuthScreen(
                         modifier = Modifier.fillMaxWidth(),
                         text = "SUPPLELAB",
                         textAlign = TextAlign.Center,
-                        fontFamily = BebasNeueFont(),
+                        fontFamily = BebasNeueFont,
                         fontSize = FontSize.EXTRA_LARGE,
                         color = TextSecondary
                     )

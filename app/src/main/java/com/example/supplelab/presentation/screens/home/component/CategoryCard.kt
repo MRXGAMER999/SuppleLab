@@ -60,7 +60,7 @@ fun CategoryCard(
         Text(
             text = category.title,
             fontSize = FontSize.EXTRA_MEDIUM,
-            fontFamily = BebasNeueFont(),
+            fontFamily = BebasNeueFont,
             color = TextPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

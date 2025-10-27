@@ -81,7 +81,7 @@ fun ProfileScreen(
                     title = {
                         Text(
                             text = "My Profile",
-                            fontFamily = BebasNeueFont(),
+                            fontFamily = BebasNeueFont,
                             fontSize = FontSize.LARGE,
                             color = TextPrimary
                         )

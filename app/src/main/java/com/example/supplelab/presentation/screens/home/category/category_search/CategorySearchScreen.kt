@@ -107,7 +107,7 @@ fun CategorySearchScreen(
                         title = {
                             Text(
                                 text = category.title,
-                                fontFamily = BebasNeueFont(),
+                                fontFamily = BebasNeueFont,
                                 fontSize = FontSize.LARGE,
                                 color = TextPrimary
                             )

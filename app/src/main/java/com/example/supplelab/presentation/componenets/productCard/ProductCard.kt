@@ -94,7 +94,7 @@ fun ProductCard(
                 modifier = Modifier.fillMaxWidth(),
                 text = product.title,
                 fontSize = FontSize.MEDIUM,
-                fontFamily = RobotoCondensedFont(),
+                fontFamily = RobotoCondensedFont,
                 color = TextPrimary,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,

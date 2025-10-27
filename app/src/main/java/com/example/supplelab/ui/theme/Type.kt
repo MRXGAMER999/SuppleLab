@@ -35,11 +35,11 @@ val Typography = Typography(
     */
 
 )
-fun BebasNeueFont() = FontFamily(
+val BebasNeueFont = FontFamily(
     Font(R.font.bebas_neue_regular)
 )
 
-fun RobotoCondensedFont() = FontFamily(
+val RobotoCondensedFont = FontFamily(
     Font(R.font.roboto_condensed_medium)
 )
 

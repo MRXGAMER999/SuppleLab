@@ -107,7 +107,7 @@ fun AdminPanelScreen(
                         title = {
                             Text(
                                 text = "ADMIN PANEL",
-                                fontFamily = BebasNeueFont(),
+                                fontFamily = BebasNeueFont,
                                 fontSize = FontSize.LARGE,
                                 color = TextPrimary
                             )
