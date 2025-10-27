@@ -11,6 +11,7 @@ import com.example.supplelab.presentation.screens.admin.manageProduct.ManageProd
 import com.example.supplelab.presentation.screens.admin.AdminPanelScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
+import com.example.supplelab.presentation.screens.home.cart.checkout.CheckoutScreen
 import com.example.supplelab.presentation.screens.home.category.category_search.CategorySearchScreen
 import com.example.supplelab.presentation.screens.home.details.DetailsScreen
 import com.example.supplelab.presentation.screens.profile.ProfileScreen
@@ -43,6 +44,11 @@ data class CategorySearchScreenKey(
 @Serializable
 data class ManageProductScreenKey(
     val id: String? = null
+) : NavKey
+
+@Serializable
+data class CheckoutScreenKey(
+    val totalAmount: Double
 ) : NavKey
 
 
@@ -97,6 +103,9 @@ fun NavigationRoot(
                             },
                             onNavigateToCategory = { category ->
                                 backStack.add(CategorySearchScreenKey(category = category))
+                            },
+                            onNavigateToCheckOut = {
+                                backStack.add(CheckoutScreenKey(totalAmount = it))
                             }
                         )
                     }
@@ -168,6 +177,18 @@ fun NavigationRoot(
                                 backStack.add(DetailsScreenKey(id = productId))
                             }
                         )
+                    }
+                }
+                is CheckoutScreenKey -> {
+                    NavEntry(
+                        key = key,
+                    ) {
+                         CheckoutScreen(
+                             totalAmount = key.totalAmount,
+                                onNavigationIconClicked = {
+                                    backStack.remove(key)
+                                }
+                         )
                     }
                 }
                 else -> error("Unknown NavKey: $key")

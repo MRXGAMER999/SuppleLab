@@ -1,5 +1,6 @@
 package com.example.supplelab.presentation.screens.profile
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -115,7 +116,8 @@ fun ProfileScreen(
                         top = 12.dp,
                         bottom = 24.dp
                     )
-                    .imePadding()
+                    .imePadding(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 screenReady.DisplayResult(
                     onLoading = {
@@ -144,13 +146,12 @@ fun ProfileScreen(
                                 phoneNumber = screenState.phoneNumber?.number,
                                 onPhoneNumberChange = viewModel::updatePhoneNumber,
                             )
-                            Spacer(modifier = Modifier.height(12.dp))
                             PrimaryButton(
                                 text = "Update",
                                 icon = R.drawable.check,
                                 enabled = isFormValid,
                                 onClick = {
-                                    viewModel.UpdateCustomer(
+                                    viewModel.updateCustomer(
                                         onSuccess = {
                                             coroutineScope.launch {
                                                 isSuccess = true

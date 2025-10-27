@@ -1,6 +1,7 @@
 package com.example.supplelab.presentation.screens.home.component
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,6 +22,7 @@ import com.example.supplelab.ui.theme.TextPrimary
 fun HomeTopBar(
     selectedIndex: Int,
     onNavigationIconClicked: () -> Unit,
+    actionsContent: (@Composable () -> Unit),
     isDrawerOpened: Boolean
 ) {
     val titles = listOf("HOME", "CARD", "CATEGORIES")
@@ -48,6 +50,13 @@ fun HomeTopBar(
                     contentDescription = "Menu Icon",
                     tint = IconPrimary
                 )
+            }
+        },
+        actions = {
+            AnimatedVisibility(
+                visible = selectedIndex == 1
+            ) {
+                actionsContent()
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

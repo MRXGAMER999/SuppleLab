@@ -72,6 +72,23 @@ class CartScreenViewModel (
 
         }
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val totalAmountFlow = cartItemsWithProducts
+        .flatMapLatest { data ->
+            if (data.isSuccess()) {
+                val items = data.getSuccessData()
+                val cartItems = items.map { it.first }
+                val products = items.map { it.second }.associateBy { it.id }
+
+                val totalPrice = cartItems.sumOf { cartItem ->
+                    val productPrice = products[cartItem.productId]?.price ?: 0.0
+                    productPrice * cartItem.quantity
+                }
+                    flowOf(RequestState.Success(totalPrice))
+                } else if (data.isError()) flowOf(RequestState.Error(data.getErrorMessage()))
+                else flowOf(RequestState.Loading)
+            }
     fun updateCartItemQuantity(
         id: String,
         quantity: Int,

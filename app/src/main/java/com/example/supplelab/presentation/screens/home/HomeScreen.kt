@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,7 +32,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.supplelab.R
 import com.example.supplelab.navigation.HomeTabsNavContent
 import com.example.supplelab.presentation.componenets.TopNotification
 import com.example.supplelab.presentation.profile.CustomDrawerState
@@ -38,9 +42,11 @@ import com.example.supplelab.presentation.profile.isOpened
 import com.example.supplelab.presentation.profile.opposite
 import com.example.supplelab.domain.repository.CustomerRepository
 import com.example.supplelab.presentation.screens.authentication.AuthViewModel
+import com.example.supplelab.presentation.screens.home.cart.CartScreenViewModel
 import com.example.supplelab.presentation.screens.home.component.CustomDrawer
 import com.example.supplelab.presentation.screens.home.component.HomeBottomBar
 import com.example.supplelab.presentation.screens.home.component.HomeTopBar
+import com.example.supplelab.ui.theme.IconPrimary
 import com.example.supplelab.ui.theme.Surface
 import com.example.supplelab.ui.theme.SurfaceLighter
 import com.example.supplelab.util.Constants.ALPHA_DISABLED
@@ -56,8 +62,9 @@ fun HomeScreen(
     onSignOut: () -> Unit,
     onProfileClick: () -> Unit,
     onAdminPanelClick: () -> Unit,
-    onNavigateToDetails: (String) -> Unit = {},
-    onNavigateToCategory: (String) -> Unit = {}
+    onNavigateToDetails: (String) -> Unit ,
+    onNavigateToCategory: (String) -> Unit,
+    onNavigateToCheckOut: (Double) -> Unit
 ) {
     val customerRepository: CustomerRepository = koinInject()
     
@@ -91,7 +98,9 @@ fun HomeScreen(
     // Use current user ID as key to ensure ViewModel is recreated for different users
     val currentUserId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: "no_user"
     val viewModel: AuthViewModel = koinViewModel(key = currentUserId)
+    val cartViewModel: CartScreenViewModel = koinViewModel()
     val customer by viewModel.customer.collectAsState()
+    val totalAmount by cartViewModel.totalAmountFlow.collectAsState(RequestState.Loading)
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
     val coroutineScope = rememberCoroutineScope()
     var showNotification by remember { mutableStateOf(false) }
@@ -161,7 +170,30 @@ fun HomeScreen(
                         HomeTopBar(
                             selectedItemIndex,
                             onNavigationIconClicked = { drawerState = drawerState.opposite() },
-                            isDrawerOpened = drawerState.isOpened()
+                            isDrawerOpened = drawerState.isOpened(),
+                            actionsContent = {
+                                IconButton(
+                                    onClick = {
+                                        if (totalAmount.isSuccess()){
+                                            onNavigateToCheckOut(
+                                                totalAmount.getSuccessData()
+                                            )
+                                        } else if (totalAmount.isError()){
+                                            coroutineScope.launch {
+                                                isSuccess = false
+                                                notificationMessage = totalAmount.getErrorMessage()
+                                                showNotification = true
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.right_arrow),
+                                        contentDescription = "Checkout Icon",
+                                        tint = IconPrimary
+                                    )
+                                }
+                            }
                         )
                     },
                     bottomBar = {

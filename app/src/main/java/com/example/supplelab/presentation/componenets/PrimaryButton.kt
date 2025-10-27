@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.ui.theme.ButtonDisabled
 import com.example.supplelab.ui.theme.ButtonPrimary
+import com.example.supplelab.ui.theme.ButtonSecondary
 import com.example.supplelab.ui.theme.FontSize
 import com.example.supplelab.ui.theme.TextPrimary
 import com.example.supplelab.util.Constants.ALPHA_DISABLED
@@ -29,6 +30,7 @@ fun PrimaryButton(
     text: String,
     icon: Int? = null,
     enabled: Boolean = true,
+    secondary: Boolean = false,
     onClick: () -> Unit
 ) {
     Button(
@@ -37,7 +39,7 @@ fun PrimaryButton(
         enabled = enabled,
         shape = RoundedCornerShape(size = 6.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = ButtonPrimary,
+            containerColor = if (secondary) ButtonSecondary else ButtonPrimary,
             contentColor = TextPrimary,
             disabledContainerColor = ButtonDisabled,
             disabledContentColor = TextPrimary.copy(ALPHA_DISABLED)

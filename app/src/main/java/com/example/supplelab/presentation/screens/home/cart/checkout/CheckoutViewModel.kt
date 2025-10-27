@@ -1,4 +1,4 @@
-package com.example.supplelab.presentation.screens.profile
+package com.example.supplelab.presentation.screens.home.cart.checkout
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +9,7 @@ import com.example.supplelab.domain.model.Country
 import com.example.supplelab.domain.model.Customer
 import com.example.supplelab.domain.model.PhoneNumber
 import com.example.supplelab.domain.repository.CustomerRepository
+import com.example.supplelab.presentation.screens.profile.CheckoutScreenState
 import com.example.supplelab.util.RequestState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -26,11 +27,9 @@ data class CheckoutScreenState(
     val phoneNumber: PhoneNumber? = null,
     val profileComplete: Boolean = false
 )
-
-class ProfileViewModel(
+class CheckoutViewModel(
     private val customerRepository: CustomerRepository
-) : ViewModel() {
-
+): ViewModel() {
     var screenReady: RequestState<Unit> by mutableStateOf(RequestState.Loading)
     var screenState: CheckoutScreenState by mutableStateOf(CheckoutScreenState())
         private set
@@ -51,25 +50,23 @@ class ProfileViewModel(
                     phoneNumber.number.isNotBlank() &&
                     phoneNumber.number.length in 5..15
         }
-
-
     private var dataLoadJob: Job? = null
-    
+
     init {
         loadCustomerData()
     }
-    
+
     fun reloadData() {
         // Cancel existing job if any
         dataLoadJob?.cancel()
         loadCustomerData()
     }
-    
+
     private fun loadCustomerData() {
         // Reset state to loading
         screenReady = RequestState.Loading
         screenState = CheckoutScreenState()
-        
+
         dataLoadJob = viewModelScope.launch {
             customerRepository.readCustomerFlow().collectLatest { data ->
                 if (data.isSuccess()) {
