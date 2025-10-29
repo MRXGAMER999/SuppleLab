@@ -5,11 +5,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.supplelab.domain.model.CartItem
 import com.example.supplelab.domain.model.Country
 import com.example.supplelab.domain.model.Customer
+import com.example.supplelab.domain.model.Order
 import com.example.supplelab.domain.model.PhoneNumber
+import com.example.supplelab.domain.model.Product
 import com.example.supplelab.domain.repository.CustomerRepository
-import com.example.supplelab.presentation.screens.profile.CheckoutScreenState
+import com.example.supplelab.domain.repository.OrderRepository
+import com.example.supplelab.domain.repository.ProductRepository
 import com.example.supplelab.util.RequestState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -25,14 +29,19 @@ data class CheckoutScreenState(
     val address: String? = null,
     val country: Country = Country.Egypt,
     val phoneNumber: PhoneNumber? = null,
-    val profileComplete: Boolean = false
+    val profileComplete: Boolean = false,
+    val cart: List<CartItem> = emptyList()
 )
 class CheckoutViewModel(
-    private val customerRepository: CustomerRepository
+    private val customerRepository: CustomerRepository,
+    private val orderRepository: OrderRepository,
+    private val productRepository: ProductRepository
 ): ViewModel() {
     var screenReady: RequestState<Unit> by mutableStateOf(RequestState.Loading)
     var screenState: CheckoutScreenState by mutableStateOf(CheckoutScreenState())
         private set
+
+    private var cartProducts: List<Product> = emptyList()
 
     val isFormValid: Boolean
         get() = with(screenState) {
@@ -82,9 +91,25 @@ class CheckoutViewModel(
                         phoneNumber = fetchedCustomer.phoneNumber,
                         country = Country.entries.firstOrNull { it.dialCode == fetchedCustomer.phoneNumber?.dialCode }
                             ?: Country.Egypt,
-                        profileComplete = fetchedCustomer.profileComplete
+                        profileComplete = fetchedCustomer.profileComplete,
+                        cart = fetchedCustomer.cart
                     )
-                    screenReady = RequestState.Success(Unit)
+
+                    // Fetch products for cart items
+                    val productIds = fetchedCustomer.cart.map { it.productId }.toSet()
+                    if (productIds.isNotEmpty()) {
+                        productRepository.readProductsByIdsFlow(productIds.toList()).collectLatest { productsData ->
+                            if (productsData.isSuccess()) {
+                                cartProducts = productsData.getSuccessData()
+                                screenReady = RequestState.Success(Unit)
+                            } else if (productsData.isError()) {
+                                screenReady = RequestState.Error(productsData.getErrorMessage())
+                            }
+                        }
+                    } else {
+                        cartProducts = emptyList()
+                        screenReady = RequestState.Success(Unit)
+                    }
                 } else if (data.isError()) {
                     screenReady = RequestState.Error(data.getErrorMessage())
                 }
@@ -131,8 +156,22 @@ class CheckoutViewModel(
             )
         )
     }
+    fun payOnDelivery(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        updateCustomer(
+            onSuccess = {
+                createOrder(
+                    onSuccess = onSuccess,
+                    onError = onError
+                )
+            },
+            onError = onError
+        )
+    }
 
-    fun updateCustomer(
+    private fun updateCustomer(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
@@ -155,6 +194,31 @@ class CheckoutViewModel(
                 onError = { message ->
                     onError(message)
                 }
+            )
+        }
+    }
+    private fun createOrder(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            // Create a map of products by ID for quick lookup
+            val productsById = cartProducts.associateBy { it.id }
+
+            // Calculate total amount by summing (product price * quantity) for each cart item
+            val totalAmount = screenState.cart.sumOf { cartItem ->
+                val productPrice = productsById[cartItem.productId]?.price ?: 0.0
+                productPrice * cartItem.quantity
+            }
+
+            orderRepository.createTheOrder(
+                order = Order(
+                    customerId = screenState.id,
+                    items = screenState.cart,
+                    totalAmount = totalAmount
+                ),
+                onSuccess = onSuccess,
+                onError = onError
             )
         }
     }

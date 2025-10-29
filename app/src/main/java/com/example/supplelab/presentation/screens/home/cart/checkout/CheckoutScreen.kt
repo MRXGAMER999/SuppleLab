@@ -28,6 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.supplelab.R
+import com.example.supplelab.navigation.PaymentCompletedKey
 import com.example.supplelab.presentation.componenets.PrimaryButton
 import com.example.supplelab.presentation.componenets.TopNotification
 import com.example.supplelab.presentation.profile.ProfileForm
@@ -44,7 +45,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun CheckoutScreen(
     totalAmount: Double,
-    onNavigationIconClicked: () -> Unit
+    onNavigationIconClicked: () -> Unit,
+    navigateToPaymentCompleted: (Boolean?, String?) -> Unit
 ){
     val viewModel : CheckoutViewModel = koinViewModel()
     val screenState = viewModel.screenState
@@ -140,20 +142,12 @@ fun CheckoutScreen(
                 secondary = true,
                 enabled = isFormValid,
                 onClick = {
-                    viewModel.updateCustomer(
+                    viewModel.payOnDelivery(
                         onSuccess = {
-                            coroutineScope.launch {
-                                isSuccess = true
-                                notificationMessage = "Order placed successfully!"
-                                showNotification = true
-                            }
+                            navigateToPaymentCompleted(true, null)
                         },
                         onError = { message ->
-                            coroutineScope.launch {
-                                isSuccess = false
-                                notificationMessage = "Order failed: $message"
-                                showNotification = true
-                            }
+                            navigateToPaymentCompleted(null, message)
                         }
                     )
                 }

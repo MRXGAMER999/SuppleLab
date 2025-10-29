@@ -172,26 +172,28 @@ fun HomeScreen(
                             onNavigationIconClicked = { drawerState = drawerState.opposite() },
                             isDrawerOpened = drawerState.isOpened(),
                             actionsContent = {
-                                IconButton(
-                                    onClick = {
-                                        if (totalAmount.isSuccess()){
-                                            onNavigateToCheckOut(
-                                                totalAmount.getSuccessData()
-                                            )
-                                        } else if (totalAmount.isError()){
-                                            coroutineScope.launch {
-                                                isSuccess = false
-                                                notificationMessage = totalAmount.getErrorMessage()
-                                                showNotification = true
+                                if(customer.isSuccess() && customer.getSuccessData().cart.isNotEmpty()){
+                                    IconButton(
+                                        onClick = {
+                                            if (totalAmount.isSuccess()){
+                                                onNavigateToCheckOut(
+                                                    totalAmount.getSuccessData()
+                                                )
+                                            } else if (totalAmount.isError()){
+                                                coroutineScope.launch {
+                                                    isSuccess = false
+                                                    notificationMessage = totalAmount.getErrorMessage()
+                                                    showNotification = true
+                                                }
                                             }
                                         }
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.right_arrow),
+                                            contentDescription = "Checkout Icon",
+                                            tint = IconPrimary
+                                        )
                                     }
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.right_arrow),
-                                        contentDescription = "Checkout Icon",
-                                        tint = IconPrimary
-                                    )
                                 }
                             }
                         )

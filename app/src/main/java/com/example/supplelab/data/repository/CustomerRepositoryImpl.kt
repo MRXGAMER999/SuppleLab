@@ -269,6 +269,35 @@ class CustomerRepositoryImpl: CustomerRepository {
         }
     }
 
+    override suspend fun deleteAllCartItems(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        try {
+            val currentUserId = getCurrentUserId()
+            if (currentUserId != null){
+                val dataBase = Firebase.firestore
+                val customerCollection = dataBase.collection("customers")
+                val existingCustomer = customerCollection
+                    .document(currentUserId)
+                    .get()
+                    .await()
+                if(existingCustomer.exists()){
+                    customerCollection.document(currentUserId)
+                        .update(mapOf("cart" to emptyList<List<CartItem>>()))
+                        .await()
+                    onSuccess()
+                } else {
+                    onError("Customer not found")
+                }
+            } else {
+                onError("User is not available")
+            }
+        } catch (e: Exception) {
+            onError(e.message ?: "Error adding item to cart")
+        }
+    }
+
 
     override suspend fun signOut(): RequestState<Unit> {
         return try {

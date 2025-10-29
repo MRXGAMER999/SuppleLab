@@ -12,6 +12,7 @@ import com.example.supplelab.presentation.screens.admin.AdminPanelScreen
 import com.example.supplelab.presentation.screens.authentication.AuthScreen
 import com.example.supplelab.presentation.screens.home.HomeScreen
 import com.example.supplelab.presentation.screens.home.cart.checkout.CheckoutScreen
+import com.example.supplelab.presentation.screens.home.cart.checkout.payment_completed.PaymentCompletedScreen
 import com.example.supplelab.presentation.screens.home.category.category_search.CategorySearchScreen
 import com.example.supplelab.presentation.screens.home.details.DetailsScreen
 import com.example.supplelab.presentation.screens.profile.ProfileScreen
@@ -50,6 +51,12 @@ data class ManageProductScreenKey(
 data class CheckoutScreenKey(
     val totalAmount: Double
 ) : NavKey
+
+@Serializable
+data class PaymentCompletedKey(
+    val isSuccess: Boolean? = null,
+    val error: String? = null
+): NavKey
 
 
 
@@ -187,8 +194,31 @@ fun NavigationRoot(
                              totalAmount = key.totalAmount,
                                 onNavigationIconClicked = {
                                     backStack.remove(key)
-                                }
+                                },
+                             navigateToPaymentCompleted = { isSuccess, error ->
+                                 backStack.add(
+                                     PaymentCompletedKey(
+                                         isSuccess = isSuccess,
+                                         error = error
+                                     )
+                                 )
+
+                             }
                          )
+                    }
+                }
+                is PaymentCompletedKey -> {
+                    NavEntry(
+                        key = key,
+                    ) {
+                        PaymentCompletedScreen(
+                            navigateBack = {
+                                backStack.clear()
+                                backStack.add(HomeScreenKey)
+                            },
+                            isSuccess = key.isSuccess,
+                            error = key.error
+                        )
                     }
                 }
                 else -> error("Unknown NavKey: $key")
